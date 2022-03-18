@@ -23,8 +23,10 @@ describe("Funding", function () {
         const Project = await ethers.getContractFactory("ProjectStandard");
         project = await Project.deploy(owner, receiver_addr, title, description, goal_amount, deadline_blocks_num);
 
-        const ret = await project.connect(buyer1).getCurrentState()
-        await expect(ret).to.eql([buyer1.address, buyer1.address, title, description, ethers.BigNumber.from(0), ethers.BigNumber.from(goal_amount), ethers.BigNumber.from(0), ethers.BigNumber.from(deadline_blocks_num), []]);
+        await expect(project.connect(buyer1).getCurrentState())
+        .to.emit(project, "stateInfo")
+        .withArgs(buyer1.address, buyer1.address, title, description, ethers.BigNumber.from(0), ethers.BigNumber.from(goal_amount), ethers.BigNumber.from(0), ethers.BigNumber.from(deadline_blocks_num), []);
+
     })
 
 
