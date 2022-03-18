@@ -13,7 +13,7 @@ describe("Funding", function () {
         provider = waffle.provider;
 
     })
-    it('project state should be set properly after constructor', async () => {
+    it('project state should be set properly after call the constructor', async () => {
         const owner = buyer1.address;
         const receiver_addr = buyer1.address;
         const title = "I'm Title";
