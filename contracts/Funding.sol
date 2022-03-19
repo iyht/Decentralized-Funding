@@ -3,7 +3,49 @@ pragma solidity >=0.8.0;
 
 contract Manager{
 
-    Project[] private projects;
+    ProjectStandard[] public projects;
+
+    event NewProject(
+        address contractAddr,
+        address owner,
+        address receiver,
+        string title,
+        string description,
+        uint goalAmount,
+        uint deadlineBlocksNum);
+
+    /**
+        @dev Function to get all projects
+     */
+    function getAllProjects external view returns (ProjectStandard[] memory) {
+        return projects;
+    }
+
+    /**
+        @dev Function to create a new Project
+        @param receiver Reveiver of the new Project
+        @param title Title of the funding project
+        @param desc Desc of the funding project
+        @param goalAmount Funding target
+        @param deadlineBlocksNum Deadline condition of project
+     */
+    function createProject(
+        address receiver,
+        string memory title, 
+        string memory desc, 
+        uint256 goalAmount,
+        uint256 deadlineBlocksNum) external {
+        ProjectStandard project = new ProjectStandard(msg.sender, receiver, title, desc, goalAmount, deadlineBlockNum);
+        projects.push(project);
+        emit NewProject(
+            address(project),
+            msg.sender,
+            receiver,
+            title,
+            desc,
+            goalAmount,
+            deadlineBlocksNum);
+    }
 }
 
 abstract contract Project{
