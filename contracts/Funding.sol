@@ -3,14 +3,15 @@ pragma solidity >=0.8.0;
 
 contract Manager{
 
-    Project[] public projects;
+    Project[] private projects;
 
     event NewProject(
-        address contractAddr,
+        //address contractAddr,
         address owner,
         address receiver,
         string title,
         string description,
+        string img_url,
         uint goalAmount,
         uint deadlineBlocksNum);
 
@@ -34,16 +35,18 @@ contract Manager{
         // calldata read-only
         string calldata title, 
         string calldata desc, 
+        string calldata imgUrl,
         uint256 goalAmount,
         uint256 deadlineBlocksNum) external {
-        Project project = new ProjectStandard(msg.sender, receiver, title, desc, goalAmount, deadlineBlocksNum);
+        Project project = new ProjectStandard(msg.sender, receiver, title, desc, imgUrl, goalAmount, deadlineBlocksNum);
         projects.push(project);
         emit NewProject(
-            address(project),
+           // address(project),
             msg.sender,
             receiver,
             title,
             desc,
+            imgUrl,
             goalAmount,
             deadlineBlocksNum);
     }
