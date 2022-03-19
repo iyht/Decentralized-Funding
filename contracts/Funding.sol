@@ -31,8 +31,9 @@ contract Manager{
      */
     function createProject(
         address receiver,
-        string memory title, 
-        string memory desc, 
+        // calldata read-only
+        string calldata title, 
+        string calldata desc, 
         uint256 goalAmount,
         uint256 deadlineBlocksNum) external {
         ProjectStandard project = new ProjectStandard(msg.sender, receiver, title, desc, goalAmount, deadlineBlockNum);
