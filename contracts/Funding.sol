@@ -17,7 +17,7 @@ contract Manager{
     /**
         @dev Function to get all projects
      */
-    function getAllProjects external view returns (Project[] memory) {
+    function getAllProjects () external view returns (Project[] memory) {
         return projects;
     }
 
@@ -36,7 +36,7 @@ contract Manager{
         string calldata desc, 
         uint256 goalAmount,
         uint256 deadlineBlocksNum) external {
-        Project project = new ProjectStandard(msg.sender, receiver, title, desc, goalAmount, deadlineBlockNum);
+        Project project = new ProjectStandard(msg.sender, receiver, title, desc, goalAmount, deadlineBlocksNum);
         projects.push(project);
         emit NewProject(
             address(project),
