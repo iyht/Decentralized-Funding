@@ -257,6 +257,72 @@ describe("Test Funding", function () {
         })
     });
 
+    describe("Test Lottery Project", function(){
+        let owner, receiver, investor1, investor2, provider, project;
+        beforeEach(async() => {
+            [owner, receiver, investor1, investor2] = await ethers.getSigners();
+            provider = waffle.provider;
+    
+            const owner_addr = owner.address;
+            const receiver_addr = receiver.address;
+            const title = "I'm Title";
+            const description = "I'm Description";
+            const img_url = "";
+            const goal_amount = ethers.utils.parseEther("1.1");
+            const duration = 3;
+            const percentage = 50;
+            const Project = await ethers.getContractFactory("ProjectLottery");
+            project = await Project.deploy(owner_addr, receiver_addr, title, description, img_url, goal_amount, duration, percentage);
+        })
+        it('prize pool should be updated correctly after investments.', async () => {
+            // contribute
+            await project.connect(investor1).contribute({value: ethers.utils.parseEther("2")});
+            await project.connect(investor2).contribute({value: ethers.utils.parseEther("8")});
+            // check prize
+            const prizePool = (await project.lottery()).prize;
+            expect(prizePool).to.equal(ethers.utils.parseEther("5"));
+        })
+        it('a winner should be drawn when the project completes.', async () => {
+            // contribute
+            await project.connect(investor1).contribute({value: ethers.utils.parseEther("2")});
+            await project.connect(investor2).contribute({value: ethers.utils.parseEther("2")});
+            // complete project
+            await project.connect(owner).completeProject();
+            // check winner
+            const winnerAddress = (await project.lottery()).winner;
+            assert(winnerAddress == investor1.address || winnerAddress == investor2.address);
+        })
+        it('lottery winner and project receiver should have the correct amount of ethers after the lottery is drawn.', async () => {
+            // contribute
+            await project.connect(investor1).contribute({value: ethers.utils.parseEther("2")});
+            await project.connect(investor2).contribute({value: ethers.utils.parseEther("2")});
+
+            const investor1BalanceBefore = ethers.BigNumber.from(await investor1.getBalance());
+            const investor2BalanceBefore = ethers.BigNumber.from(await investor2.getBalance());
+            const receiverBalanceBefore = ethers.BigNumber.from(await receiver.getBalance());
+            const prizePool = ethers.BigNumber.from((await project.lottery()).prize);
+            const funds = await provider.getBalance(project.address);
+
+            // complete project
+            await project.connect(owner).completeProject();
+
+            const investor1BalanceAfter = ethers.BigNumber.from(await investor1.getBalance());
+            const investor2BalanceAfter = ethers.BigNumber.from(await investor2.getBalance());
+            const receiverBalanceAfter = ethers.BigNumber.from(await receiver.getBalance());
+
+            // check balance
+            const winnerAddress = (await project.lottery()).winner;
+            if(winnerAddress == investor1.address){
+                expect(investor1BalanceAfter.sub(investor1BalanceBefore)).to.equal(prizePool);
+                expect(investor2BalanceAfter).to.equal(investor2BalanceBefore);
+            } else {
+                expect(investor2BalanceAfter.sub(investor2BalanceBefore)).to.equal(prizePool);
+                expect(investor1BalanceAfter).to.equal(investor1BalanceBefore);
+            }
+            expect(receiverBalanceAfter.sub(receiverBalanceBefore)).to.equal(funds.sub(prizePool));
+        })
+    });
+
     describe("Test Project Manager", function(){
         let owner, buyer1, provider, Project;
         beforeEach(async() => {
