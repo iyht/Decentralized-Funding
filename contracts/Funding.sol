@@ -3,17 +3,17 @@ pragma solidity >=0.8.0;
 
 contract Manager{
 
-    Project[] private projects;
+    Project[] public projects;
 
     event NewProject(
         //address contractAddr,
-        address owner,
-        address receiver,
+        address indexed owner,
+        address indexed receiver,
         string title,
         string description,
         string img_url,
         uint goalAmount,
-        uint deadlineBlocksNum);
+        uint duration);
 
     /**
         @dev Function to get all projects
@@ -28,7 +28,7 @@ contract Manager{
         @param title Title of the funding project
         @param desc Desc of the funding project
         @param goalAmount Funding target
-        @param deadlineBlocksNum Deadline condition of project
+        @param duration Duration of project
      */
     function createProject(
         address receiver,
@@ -37,8 +37,14 @@ contract Manager{
         string calldata desc, 
         string calldata imgUrl,
         uint256 goalAmount,
-        uint256 deadlineBlocksNum) external {
-        Project project = new ProjectStandard(msg.sender, receiver, title, desc, imgUrl, goalAmount, deadlineBlocksNum);
+        uint256 duration) external {
+        require(receiver != address(0), "Invalid receiver address!");
+        require(bytes(title).length != 0, "Title cannot be empty!");
+        require(bytes(desc).length != 0, "Description cannot be empty!");
+        require(goalAmount > 0, "Funding goal should not be zero!");
+        require(duration > 0, "Project duration should be at least 1 day!");
+
+        Project project = new ProjectStandard(msg.sender, receiver, title, desc, imgUrl, goalAmount, duration);
         projects.push(project);
         emit NewProject(
            // address(project),
@@ -48,7 +54,7 @@ contract Manager{
             desc,
             imgUrl,
             goalAmount,
-            deadlineBlocksNum);
+            duration);
     }
 }
 
