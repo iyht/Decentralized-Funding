@@ -124,7 +124,7 @@ contract ProjectStandard is Project{
         state.active = true;
     }
 
-    function contribute() public active ensure override payable returns(bool){
+    function contribute() public active ensure override virtual payable returns(bool){
         state.amount += msg.value;
         
         // record the funder if it's the first time contribute this project
@@ -137,10 +137,10 @@ contract ProjectStandard is Project{
         return true;
     }
 
-    function completeProject() public active onlyOwner override returns(bool){
+    function completeProject() public active onlyOwner override virtual returns(bool){
         payable(state.receiver).transfer(address(this).balance);
         state.active = false;
-        emit projectCompleted(state.owner, state.receiver, address(this).balance);
+        emit projectCompleted(state.owner, state.receiver, state.amount);
         return true;
     }
 
@@ -152,7 +152,7 @@ contract ProjectStandard is Project{
             payable(funder).transfer(contribution);
         }
         state.active = false;
-        emit projectCanceled(state.owner, state.receiver, address(this).balance);
+        emit projectCanceled(state.owner, state.receiver, state.amount);
         return true;
     }
 
@@ -179,4 +179,83 @@ contract ProjectStandard is Project{
                 state.funders);
     }
 
+}
+
+contract ProjectLottery is ProjectStandard{
+
+    struct Lottery{
+        address winner;
+        uint256 prize;
+        uint256 drawTimestamp;
+        uint8 percentage;
+    }
+    Lottery public lottery;
+
+    event lotteryDrawn(address indexed, uint256);
+
+    constructor(address _owner, 
+               address _receiver, 
+               string memory _title, 
+               string memory _description,
+               string memory _img_url,
+               uint256 _goal_amount,
+               uint _duration,
+               uint8 _percentage) ProjectStandard(_owner, _receiver, _title, _description, _img_url, _goal_amount, _duration){
+                   lottery.percentage = _percentage;
+               }
+
+    function contribute() public active ensure override payable returns(bool){
+        state.amount += msg.value;
+        
+        // record the funder if it's the first time contribute this project
+        if(state.contribution[msg.sender] == 0){
+            state.funders.push(msg.sender);
+        }
+
+        state.contribution[msg.sender] += msg.value;
+        lottery.prize = address(this).balance / 100 * lottery.percentage;
+        emit fundingRecevied(msg.sender, msg.value, address(this).balance);
+        return true;
+    }
+
+    function completeProject() public active onlyOwner override returns(bool){
+        // draw winner
+        if(lottery.prize > 0){
+            uint256 _draw = rand(state.amount);
+            uint256 _cur = 0;
+            for(uint i = 0; i < state.funders.length; i++){
+                address funder = state.funders[i];
+                _cur += state.contribution[funder];
+                if(_cur > _draw)
+                {
+                    lottery.winner = funder;
+                    lottery.drawTimestamp = block.timestamp;
+                    payable(funder).transfer(lottery.prize);
+                    emit lotteryDrawn(funder, lottery.prize);
+                    break;
+                }
+            } 
+        }
+
+        payable(state.receiver).transfer(address(this).balance);
+        state.active = false;
+        emit projectCompleted(state.owner, state.receiver, state.amount);
+        return true;
+    }
+
+    function rand(uint256 _max)
+        internal
+        view
+        returns(uint256)
+    {
+        uint256 seed = uint256(keccak256(abi.encodePacked(
+            block.timestamp + block.difficulty +
+            ((uint256(keccak256(abi.encodePacked(block.coinbase)))) / (block.timestamp)) +
+            block.gaslimit + 
+            ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) +
+            block.number
+        )));
+
+        return (seed - ((seed / _max) * _max));
+    }
 }
