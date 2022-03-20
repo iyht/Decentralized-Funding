@@ -63,10 +63,10 @@ abstract contract Project{
         string img_url;
         uint256 amount;
         uint256 goal_amount;
-        uint blocks_num;
+        uint timestamp;
         //TODO: maybe change deadline to a string with a physical clock? 
         // From a user's perspective, using physical clock makes more sense.
-        uint deadline; 
+        uint duration; 
         mapping(address => uint256) contribution;
         address[] funders;
         bool active;
@@ -74,7 +74,7 @@ abstract contract Project{
     State public state;
 
     modifier ensure() {
-        require(state.deadline >= block.timestamp, "This project is expired!");
+        require(state.timestamp + state.duration * 1 days >= block.timestamp, "This project is expired!");
         _;
     }
 
@@ -89,7 +89,7 @@ abstract contract Project{
     }
 
     function contribute() public virtual payable returns(bool);
-    function changeDeadline(uint) public virtual returns(bool);
+    function changeDuration(uint) public virtual returns(bool);
     function completeProject() public virtual returns(bool);
     function cancelProject() public virtual returns(bool);
     function getCurrentState() public virtual;
@@ -103,23 +103,24 @@ contract ProjectStandard is Project{
     event fundingRecevied(address indexed, uint256, uint256);
     event projectCompleted(address indexed, address indexed, uint256);
     event projectCanceled(address indexed, address indexed, uint256);
+    event durationChanged(uint, uint);
 
-    constructor(address owner, 
-               address receiver, 
-               string memory title, 
-               string memory description,
-               string memory img_url,
-               uint256 goal_amount,
-               uint deadline_blocks_num) {
-        state.owner = owner;
-        state.receiver = receiver;
-        state.title = title;
-        state.description = description;
-        state.img_url = img_url;
-        state.goal_amount = goal_amount;
-        state.deadline = deadline_blocks_num;
+    constructor(address _owner, 
+               address _receiver, 
+               string memory _title, 
+               string memory _description,
+               string memory _img_url,
+               uint256 _goal_amount,
+               uint _duration) {
+        state.owner = _owner;
+        state.receiver = _receiver;
+        state.title = _title;
+        state.description = _description;
+        state.img_url = _img_url;
+        state.goal_amount = _goal_amount;
+        state.duration = _duration;
         state.amount = 0;
-        state.blocks_num = block.timestamp;
+        state.timestamp = block.timestamp;
         state.active = true;
     }
 
@@ -155,9 +156,11 @@ contract ProjectStandard is Project{
         return true;
     }
 
-    function changeDeadline(uint _deadline) public ensure active onlyOwner override returns(bool){
-        require(_deadline > state.deadline, "New deadline should be later than old deadline.");
-        state.deadline = _deadline;
+    function changeDuration(uint _duration) public ensure active onlyOwner override returns(bool){
+        require(_duration > state.duration, "Project duration can only be extended.");
+        require(address(this).balance < state.goal_amount, "project duration cannot be extended once the funding goal is reached.");
+        state.duration = _duration;
+        emit durationChanged(state.timestamp, state.duration);
         return true;
     }
 
@@ -171,8 +174,8 @@ contract ProjectStandard is Project{
                 state.amount,
                 state.goal_amount,
                 address(this).balance,
-                state.blocks_num,
-                state.deadline,
+                state.timestamp,
+                state.duration,
                 state.funders);
     }
 
