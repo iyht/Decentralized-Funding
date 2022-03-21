@@ -3,17 +3,17 @@ pragma solidity >=0.8.0;
 
 contract Manager{
 
-    Project[] private projects;
+    Project[] public projects;
 
     event NewProject(
         //address contractAddr,
-        address owner,
-        address receiver,
+        address indexed owner,
+        address indexed receiver,
         string title,
         string description,
         string img_url,
         uint goalAmount,
-        uint deadlineBlocksNum);
+        uint duration);
 
     /**
         @dev Function to get all projects
@@ -28,7 +28,7 @@ contract Manager{
         @param title Title of the funding project
         @param desc Desc of the funding project
         @param goalAmount Funding target
-        @param deadlineBlocksNum Deadline condition of project
+        @param duration Duration of project
      */
     function createProject(
         address receiver,
@@ -37,8 +37,14 @@ contract Manager{
         string calldata desc, 
         string calldata imgUrl,
         uint256 goalAmount,
-        uint256 deadlineBlocksNum) external {
-        Project project = new ProjectStandard(msg.sender, receiver, title, desc, imgUrl, goalAmount, deadlineBlocksNum);
+        uint256 duration) external {
+        require(receiver != address(0), "Invalid receiver address!");
+        require(bytes(title).length != 0, "Title cannot be empty!");
+        require(bytes(desc).length != 0, "Description cannot be empty!");
+        require(goalAmount > 0, "Funding goal should not be zero!");
+        require(duration > 0, "Project duration should be at least 1 day!");
+
+        Project project = new ProjectStandard(msg.sender, receiver, title, desc, imgUrl, goalAmount, duration);
         projects.push(project);
         emit NewProject(
            // address(project),
@@ -48,7 +54,7 @@ contract Manager{
             desc,
             imgUrl,
             goalAmount,
-            deadlineBlocksNum);
+            duration);
     }
 }
 
@@ -124,7 +130,7 @@ contract ProjectStandard is Project{
         state.active = true;
     }
 
-    function contribute() public active ensure override payable returns(bool){
+    function contribute() public active ensure override virtual payable returns(bool){
         state.amount += msg.value;
         
         // record the funder if it's the first time contribute this project
@@ -137,10 +143,10 @@ contract ProjectStandard is Project{
         return true;
     }
 
-    function completeProject() public active onlyOwner override returns(bool){
+    function completeProject() public active onlyOwner override virtual returns(bool){
         payable(state.receiver).transfer(address(this).balance);
         state.active = false;
-        emit projectCompleted(state.owner, state.receiver, address(this).balance);
+        emit projectCompleted(state.owner, state.receiver, state.amount);
         return true;
     }
 
@@ -152,7 +158,7 @@ contract ProjectStandard is Project{
             payable(funder).transfer(contribution);
         }
         state.active = false;
-        emit projectCanceled(state.owner, state.receiver, address(this).balance);
+        emit projectCanceled(state.owner, state.receiver, state.amount);
         return true;
     }
 
@@ -179,4 +185,83 @@ contract ProjectStandard is Project{
                 state.funders);
     }
 
+}
+
+contract ProjectLottery is ProjectStandard{
+
+    struct Lottery{
+        address winner;
+        uint256 prize;
+        uint256 drawTimestamp;
+        uint8 percentage;
+    }
+    Lottery public lottery;
+
+    event lotteryDrawn(address indexed, uint256);
+
+    constructor(address _owner, 
+               address _receiver, 
+               string memory _title, 
+               string memory _description,
+               string memory _img_url,
+               uint256 _goal_amount,
+               uint _duration,
+               uint8 _percentage) ProjectStandard(_owner, _receiver, _title, _description, _img_url, _goal_amount, _duration){
+                   lottery.percentage = _percentage;
+               }
+
+    function contribute() public active ensure override payable returns(bool){
+        state.amount += msg.value;
+        
+        // record the funder if it's the first time contribute this project
+        if(state.contribution[msg.sender] == 0){
+            state.funders.push(msg.sender);
+        }
+
+        state.contribution[msg.sender] += msg.value;
+        lottery.prize = address(this).balance / 100 * lottery.percentage;
+        emit fundingRecevied(msg.sender, msg.value, address(this).balance);
+        return true;
+    }
+
+    function completeProject() public active onlyOwner override returns(bool){
+        // draw winner
+        if(lottery.prize > 0){
+            uint256 _draw = rand(state.amount);
+            uint256 _cur = 0;
+            for(uint i = 0; i < state.funders.length; i++){
+                address funder = state.funders[i];
+                _cur += state.contribution[funder];
+                if(_cur > _draw)
+                {
+                    lottery.winner = funder;
+                    lottery.drawTimestamp = block.timestamp;
+                    payable(funder).transfer(lottery.prize);
+                    emit lotteryDrawn(funder, lottery.prize);
+                    break;
+                }
+            } 
+        }
+
+        payable(state.receiver).transfer(address(this).balance);
+        state.active = false;
+        emit projectCompleted(state.owner, state.receiver, state.amount);
+        return true;
+    }
+
+    function rand(uint256 _max)
+        internal
+        view
+        returns(uint256)
+    {
+        uint256 seed = uint256(keccak256(abi.encodePacked(
+            block.timestamp + block.difficulty +
+            ((uint256(keccak256(abi.encodePacked(block.coinbase)))) / (block.timestamp)) +
+            block.gaslimit + 
+            ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) +
+            block.number
+        )));
+
+        return (seed - ((seed / _max) * _max));
+    }
 }
