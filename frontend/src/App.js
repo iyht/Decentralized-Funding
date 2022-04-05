@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Layout, Menu } from "antd";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
+import UBClogo from "./ubc-logo.png";
 import { CreateProject } from "./components/create-project";
 import { Dashboard } from "./components/dashboard";
 import { ProjectsBoard } from "./components/projects-board";
@@ -24,7 +25,6 @@ function App() {
       <Router>
         <Layout style={{ minHeight: "100vh" }}>
           <Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
-            <div className="logo" />
             <Menu
               theme="dark"
               mode="horizontal"
@@ -63,6 +63,11 @@ function App() {
             </div>
           </Content>
           <Footer style={{ textAlign: "center" }}>
+            <img
+              src={UBClogo}
+              alt="UBC Logo"
+              style={{ height: 30, width: 24, marginRight: 8 }}
+            />
             EECE571G ©2022 Created by Haotian, Hanxin, Xuechun, Zhongze
           </Footer>
         </Layout>
