@@ -5,6 +5,7 @@ import {
     UserRejectedRequestError
   } from '@web3-react/injected-connector';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { Button } from "antd";
 
 function Activate(){
     const context = useWeb3React();
@@ -24,27 +25,48 @@ function Activate(){
       _activate(activate);
     }
 
-    // handle logic to eagerly connect to the injected ethereum provider, if it exists and has
-    // granted access already
-    // const eagerConnectionSuccessful = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider,
-  // if it exists
-//   useInactiveListener(!eagerConnectionSuccessful);
-
   return (
-    <button
-    //   disabled={active}
-    //   style={{
-    //     cursor: active ? 'not-allowed' : 'pointer',
-    //     borderColor: activating ? 'orange' : active ? 'unset' : 'green'
-    //   }}
+    <Button
+      disabled={active}
+      style={{
+        cursor: active ? 'not-allowed' : 'pointer',
+        borderColor: activating ? 'orange' : active ? 'unset' : 'green'
+      }}
+      type="primary"
+      size="large"
+      shape="round"
       onClick={handleActivate}
     >
-      Connecthhh
-    </button>
+    🦊 Connect
+    </Button>
   );
 }
+
+function Deactivate(){
+    const context = useWeb3React();
+    const { deactivate, active } = context;
+  
+    function handleDeactivate(event){
+      event.preventDefault();
+      deactivate();
+    }
+  
+    return (
+      <Button
+        disabled={!active}
+        style={{
+          cursor: active ? 'pointer' : 'not-allowed',
+          borderColor: active ? 'red' : 'unset'
+        }}
+        onClick={handleDeactivate}
+        type="primary"
+        size="large"
+        shape="round"
+      >
+        Disconnect
+      </Button>
+    );
+  }
 
 function getErrorMessage(error){
     let errorMessage;
@@ -75,6 +97,9 @@ export function ActivateDeactivate(){
     }
   
     return (
-        <Activate />
+        <div>
+            <Activate />
+            <Deactivate />
+        </div>
     );
   }
