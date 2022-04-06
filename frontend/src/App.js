@@ -8,6 +8,7 @@ import { CreateProject } from "./components/create-project";
 import { Dashboard } from "./components/dashboard";
 import { ProjectsBoard } from "./components/projects-board";
 import { SearchProject } from "./components/search-project";
+import MyWallet from "./components/wallet/MyWallet";
 
 const { Header, Content, Footer } = Layout;
 
@@ -40,6 +41,9 @@ function App() {
               <Menu.Item key="/dashboard">
                 <a href="/dashboard">My Dashboard</a>
               </Menu.Item>
+              <Menu.Item key="/wallet">
+                <a href="/wallet">My Wallet</a>
+              </Menu.Item>
             </Menu>
           </Header>
           <Content
@@ -53,12 +57,9 @@ function App() {
               <Routes>
                 <Route exact path="/" element={<SearchProject />} />
                 <Route exact path="/projects" element={<ProjectsBoard />} />
-                <Route
-                  exact
-                  path="/create-project"
-                  element={<CreateProject />}
-                />
+                <Route exact path="/create-project" element={<CreateProject />} />
                 <Route exact path="/dashboard" element={<Dashboard />} />
+                <Route exact path="/wallet" element={<MyWallet />} />
               </Routes>
             </div>
           </Content>
