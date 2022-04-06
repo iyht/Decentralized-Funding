@@ -1,4 +1,4 @@
-import { ActivateDeactivate } from "./active_deactive";
+import { ActivateDeactivate } from "./active_deactivate";
 import { WalletStatus } from "./WalletState";
 
 function MyWallet(props){
