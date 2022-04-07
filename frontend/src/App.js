@@ -1,7 +1,8 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect, createContext } from "react";
 import { Layout, Menu } from "antd";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { useWeb3React } from "@web3-react/core";
 
 import UBClogo from "./ubc-logo.png";
 import { CreateProject } from "./components/create-project";
@@ -12,10 +13,42 @@ import MyWallet from "./components/wallet/MyWallet";
 
 const { Header, Content, Footer } = Layout;
 
+const pathname = {
+  search: "/",
+  projects: "/projects",
+  searchProjects: "/projects/search/:keyword/",
+  createProject: "/create-project",
+  dashboard: "/dashboard",
+  wallet: "/wallet",
+};
+
+const menuItemName = {
+  search: "Search",
+  projects: "Projects",
+  dashboard: "My Dashboard",
+  wallet: "My Wallet",
+};
+
+export const ContractContext = createContext({});
+
 function App() {
   const [currentMenuItem, setCurrentMenuItem] = useState(
     window.location.pathname
   );
+  // const context = useWeb3React();
+  // const { library, active } = context;
+
+  const [signer, setSigner] = useState();
+  const [fundingContract, setFundingContract] = useState();
+  // const [fundingContractAddr, setFundingContractAddr] = useState("");
+
+  // useEffect(() => {
+  //   if (!library) {
+  //     setSigner(undefined);
+  //     return;
+  //   }
+  //   setSigner(library.getSigner());
+  // }, [library]);
 
   const handleClickMenuItem = (e) => {
     setCurrentMenuItem(e.key);
@@ -32,18 +65,11 @@ function App() {
               onClick={handleClickMenuItem}
               selectedKeys={[currentMenuItem]}
             >
-              <Menu.Item key="/">
-                <a href="/">Search</a>
-              </Menu.Item>
-              <Menu.Item key="/projects">
-                <a href="/projects">Projects</a>
-              </Menu.Item>
-              <Menu.Item key="/dashboard">
-                <a href="/dashboard">My Dashboard</a>
-              </Menu.Item>
-              <Menu.Item key="/wallet">
-                <a href="/wallet">My Wallet</a>
-              </Menu.Item>
+              {Object.entries(menuItemName).map(([page, name]) => (
+                <Menu.Item key={pathname[page]}>
+                  <a href={pathname[page]}>{name}</a>
+                </Menu.Item>
+              ))}
             </Menu>
           </Header>
           <Content
@@ -54,13 +80,25 @@ function App() {
               className="site-layout-background"
               style={{ padding: 24, minHeight: 380 }}
             >
-              <Routes>
-                <Route exact path="/" element={<SearchProject />} />
-                <Route exact path="/projects" element={<ProjectsBoard />} />
-                <Route exact path="/create-project" element={<CreateProject />} />
-                <Route exact path="/dashboard" element={<Dashboard />} />
-                <Route exact path="/wallet" element={<MyWallet />} />
-              </Routes>
+              <ContractContext.Provider
+                value={{ signer, fundingContract, setFundingContract }}
+              >
+                <Routes>
+                  <Route exact path="/" element={<SearchProject />} />
+                  <Route exact path="/projects" element={<ProjectsBoard />} />
+                  <Route
+                    path="/projects/search/:keyword/"
+                    element={<ProjectsBoard />}
+                  />
+                  <Route
+                    exact
+                    path="/create-project"
+                    element={<CreateProject />}
+                  />
+                  <Route exact path="/dashboard" element={<Dashboard />} />
+                  <Route exact path="/wallet" element={<MyWallet />} />
+                </Routes>
+              </ContractContext.Provider>
             </div>
           </Content>
           <Footer style={{ textAlign: "center" }}>

@@ -1,10 +1,38 @@
+import { useState, useEffect, useContext } from "react";
 import { Button, Input } from "antd";
+import { ContractContext } from "../App";
 
 const { Search } = Input;
 
 export const SearchProject = ({}) => {
+  const { fundingContract } = useContext(ContractContext);
+  const [projects, setProjects] = useState([]);
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    console.log({ fundingContract });
+
+    if (!fundingContract) {
+      return;
+    }
+
+    async function getAllProjects(fundingContract) {
+      const _projects = await fundingContract.getAllProjects();
+
+      if (_projects !== projects) {
+        setProjects(_projects);
+      }
+    }
+  }, [fundingContract, projects]);
+
+  const searchResult = (query) => {
+    const filteredProjects = projects.filter((project, idx) =>
+      project.title.includes(query)
+    );
+  };
+
   const onSearch = (value) => {
-    //TODO: use value as keyword to search projects, then redirect to projects page to display all matched projects
+    setOptions(value ? searchResult(value) : []);
   };
 
   const handleClickCreateProject = () => {

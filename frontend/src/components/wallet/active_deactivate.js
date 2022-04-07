@@ -1,43 +1,51 @@
 import { injected } from "./connecter";
-import { MouseEvent, ReactElement, useState } from 'react';
+import { useState, useContext } from "react";
 import {
-    NoEthereumProviderError,
-    UserRejectedRequestError
-  } from '@web3-react/injected-connector';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+  NoEthereumProviderError,
+  UserRejectedRequestError,
+} from "@web3-react/injected-connector";
+import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import { Button } from "antd";
 
-function Activate(){
-    const context = useWeb3React();
-    const { activate, active } = context;
-  
-    const [activating, setActivating] = useState(false);
-  
-    function handleActivate(event){
-      event.preventDefault();
-  
-      async function _activate(activate){
-        setActivating(true);
-        await activate(injected);
-        setActivating(false);
-      }
-  
-      _activate(activate);
+import { handleDeployContract } from "../utils/deploy-contract";
+import { ContractContext } from "../../App";
+
+function Activate() {
+  const context = useWeb3React();
+  const { activate, active } = context;
+
+  const [activating, setActivating] = useState(false);
+
+  function handleActivate(event) {
+    event.preventDefault();
+
+    async function _activate(activate) {
+      setActivating(true);
+      await activate(injected);
+      setActivating(false);
     }
+
+    _activate(activate);
+
+    // const _contract = handleDeployContract(event, signer, fundingContract);
+    // if (_contract !== fundingContract) {
+    //   setFundingContract(_contract);
+    // }
+  }
 
   return (
     <Button
       disabled={active}
       style={{
-        cursor: active ? 'not-allowed' : 'pointer',
-        borderColor: activating ? 'orange' : active ? 'unset' : 'green'
+        cursor: active ? "not-allowed" : "pointer",
+        borderColor: activating ? "orange" : active ? "unset" : "green",
       }}
       type="primary"
       size="large"
       shape="round"
       onClick={handleActivate}
     >
-    🦊 Connect
+      🦊 Connect
     </Button>
   );
 }
