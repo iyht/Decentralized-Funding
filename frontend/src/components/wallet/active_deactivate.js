@@ -1,5 +1,5 @@
 import { injected } from "./connecter";
-import { MouseEvent, ReactElement, useState } from 'react';
+import { useState } from "react";
 import {
     NoEthereumProviderError,
     UserRejectedRequestError
