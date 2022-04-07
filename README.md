@@ -1,6 +1,31 @@
+
+
 # Decentralized Crowdfunding Application
 
 We proposed to develop a decentralized crowdfunding application, which can help people who have great ideas to get their funding, and people who want to contribute to a meaningful project. This DApp offers two approaches to collect funding. One is the standard way, which is donation. Another method is people pay some money to participate in a lottery, and the majority of the funding will be used to support the project. Project creators can decide which approach they want to use to collect money.
+
+# Execution
+## Install dependencies
+```
+yarn install && cd frontend && yarn install && cd ..
+```
+## Test the frontend web application with local node
+Start the local Ether network use hardhat
+```
+yarn hardhat node
+```
+Start React Application
+```
+cd frontend
+yarn start
+```
+When connecting to the MetaMask, make sure to use the Private Key that provide by the local node. For example
+```
+Account #0: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 (10000 ETH)
+Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+```
+Import above Private Key into the MetaMask, and then select the local test net to connect.
+
 
 ## Main Features
 - Transparent standard crowdfunding for project owners and investors
