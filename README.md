@@ -19,12 +19,14 @@ Start React Application
 cd frontend
 yarn start
 ```
-When connecting to the MetaMask, make sure to use the Private Key that provide by the local node. For example
+Test with the local hardhat node. 
+- This is optional. You can also test on any test net.
+- When connecting to the MetaMask, make sure to use the Private Key that provide by the local node. For example the follwoing private key.
+- Import above Private Key into the MetaMask, and then select the local test net to connect.
 ```
 Account #0: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 (10000 ETH)
 Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ```
-Import above Private Key into the MetaMask, and then select the local test net to connect.
 
 
 ## Main Features
