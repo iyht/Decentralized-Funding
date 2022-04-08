@@ -9,8 +9,9 @@ import { Dashboard } from "./components/dashboard";
 import { ProjectsBoard } from "./components/projects-board";
 import { SearchProject } from "./components/search-project";
 import MyWallet from "./components/wallet/MyWallet";
-
 const { Header, Content, Footer } = Layout;
+
+
 
 function App() {
   const [currentMenuItem, setCurrentMenuItem] = useState(
@@ -26,24 +27,15 @@ function App() {
       <Router>
         <Layout style={{ minHeight: "100vh" }}>
           <Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
-            <Menu
-              theme="dark"
+            <Menu theme="dark"
               mode="horizontal"
               onClick={handleClickMenuItem}
               selectedKeys={[currentMenuItem]}
             >
-              <Menu.Item key="/">
-                <a href="/">Search</a>
-              </Menu.Item>
-              <Menu.Item key="/projects">
-                <a href="/projects">Projects</a>
-              </Menu.Item>
-              <Menu.Item key="/dashboard">
-                <a href="/dashboard">My Dashboard</a>
-              </Menu.Item>
-              <Menu.Item key="/wallet">
-                <a href="/wallet">My Wallet</a>
-              </Menu.Item>
+              <Menu.Item key="/"> <a href="/">Search</a> </Menu.Item>
+              <Menu.Item key="/projects"> <a href="/projects">Projects</a> </Menu.Item>
+              <Menu.Item key="/dashboard"> <a href="/dashboard">My Dashboard</a> </Menu.Item>
+              <Menu.Item key="/wallet"> <a href="/wallet">My Wallet</a> </Menu.Item>
             </Menu>
           </Header>
           <Content
