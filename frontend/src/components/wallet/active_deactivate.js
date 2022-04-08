@@ -1,14 +1,11 @@
 import { injected } from "./connecter";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import {
   NoEthereumProviderError,
   UserRejectedRequestError,
 } from "@web3-react/injected-connector";
 import { UnsupportedChainIdError, useWeb3React } from "@web3-react/core";
 import { Button } from "antd";
-
-import { handleDeployContract } from "../utils/deploy-contract";
-import { ContractContext } from "../../App";
 
 function Activate() {
   const context = useWeb3React();
@@ -26,11 +23,6 @@ function Activate() {
     }
 
     _activate(activate);
-
-    // const _contract = handleDeployContract(event, signer, fundingContract);
-    // if (_contract !== fundingContract) {
-    //   setFundingContract(_contract);
-    // }
   }
 
   return (
