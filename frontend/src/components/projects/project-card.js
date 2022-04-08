@@ -14,7 +14,7 @@ export const ProjectCard = ({ project }) => {
       cover={
         <img
           alt="example"
-          src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+          src={project[img_url]}
         />
       }
       actions={[
@@ -25,8 +25,8 @@ export const ProjectCard = ({ project }) => {
     >
       <Meta
         avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-        title="Card title"
-        description="This is the description"
+        title={project[title]}
+        description={project[description]}
       />
     </Card>
   );
