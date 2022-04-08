@@ -16,7 +16,7 @@ describe("Test Funding", function () {
         })
         it('project state should be set properly after call the constructor', async () => {
             const owner = buyer1.address;
-            const receiver_addr = buyer1.address;
+            const receiver_addr = buyer2.address;
             const title = "I'm Title";
             const description = "I'm Description";
             const img_url = "";
@@ -25,10 +25,16 @@ describe("Test Funding", function () {
             const Project = await ethers.getContractFactory("ProjectStandard");
             project = await Project.deploy(owner, receiver_addr, title, description, img_url, goal_amount, duration);
             const timestamp = (await provider.getBlock(await(project.deployTransaction.wait()).blockNumber)).timestamp;
-            await expect(project.connect(buyer1).getCurrentState())
-            .to.emit(project, "stateInfo")
-            .withArgs(buyer1.address, buyer1.address, title, description, img_url, ethers.BigNumber.from(0), ethers.BigNumber.from(goal_amount), ethers.BigNumber.from(0), timestamp, ethers.BigNumber.from(duration), []);
-    
+            expect(await project.owner()).to.equal(buyer1.address);
+            expect(await project.receiver()).to.equal(buyer2.address);
+            expect(await project.title()).to.equal(title);
+            expect(await project.description()).to.equal(description);
+            expect(await project.img_url()).to.equal(img_url);
+            expect(await project.goal_amount()).to.equal(goal_amount);
+            expect(await project.timestamp()).to.equal(timestamp);
+            expect(await project.amount()).to.equal(ethers.BigNumber.from(0));
+            expect(await project.duration()).to.equal(ethers.BigNumber.from(duration));
+            expect(await project.active()).to.equal(true);
         })
 
     });
@@ -52,7 +58,7 @@ describe("Test Funding", function () {
         it('investors cannot contribute to the project if it has been completed or cancelled.', async () => {
             // set to inactive
             await project.connect(owner).completeProject();
-            const isActive = (await project.state()).active;
+            const isActive = await project.active();
             expect(isActive).to.equal(false);
             // attempt to contribute
             await expect(project.connect(investor1).contribute({value: ethers.utils.parseEther("1.1")})).to.be.reverted;
@@ -65,7 +71,7 @@ describe("Test Funding", function () {
         })
         it('investors can contribute to the project if everything is OK.', async () => {
             // check active
-            const isActive = (await project.state()).active;
+            const isActive = await project.active();
             expect(isActive).to.equal(true);
             // attempt to contribute
             expect(await project.connect(investor1).contribute({value: ethers.utils.parseEther("1.1")}));
@@ -97,7 +103,7 @@ describe("Test Funding", function () {
         })
         it('only the owner of the project can complete the project.', async () => {
             // check owner
-            const projectOwner = (await project.state()).owner;
+            const projectOwner = await project.owner();
             expect(projectOwner).to.not.equal(investor1.address);
             // attempt to complete project from investor
             await expect(project.connect(investor1).completeProject()).to.be.reverted;
@@ -105,15 +111,15 @@ describe("Test Funding", function () {
         it('project cannot be completed if it has been completed or cancelled.', async () => {
             // set to inactive
             await project.connect(owner).completeProject();
-            const isActive = (await project.state()).active;
+            const isActive = await project.active();
             expect(isActive).to.equal(false);
             // attempt to complete project
             await expect(project.connect(owner).completeProject()).to.be.reverted;
         })
         it('project can be completed if everything is OK.', async () => {
             // check owner and status
-            const projectOwner = (await project.state()).owner;
-            const isActive = (await project.state()).active;
+            const projectOwner = await project.owner();
+            const isActive = await project.active();
             expect(projectOwner).to.equal(owner.address);
             expect(isActive).to.equal(true);
             // attempt to complete project
@@ -156,7 +162,7 @@ describe("Test Funding", function () {
         })
         it('only the owner of the project can cancel the project.', async () => {
             // check owner
-            const projectOwner = (await project.state()).owner;
+            const projectOwner = await project.owner();
             expect(projectOwner).to.not.equal(investor1.address);
             // attempt to cancel project from investor
             await expect(project.connect(investor1).cancelProject()).to.be.reverted;
@@ -164,15 +170,15 @@ describe("Test Funding", function () {
         it('project cannot be cancelled if it has been completed or cancelled.', async () => {
             // set to inactive
             await project.connect(owner).completeProject();
-            const isActive = (await project.state()).active;
+            const isActive = await project.active();
             expect(isActive).to.equal(false);
             // attempt to cancel project
             await expect(project.connect(owner).cancelProject()).to.be.reverted;
         })
         it('project can be cancelled if everything is OK.', async () => {
             // check owner and status
-            const projectOwner = (await project.state()).owner;
-            const isActive = (await project.state()).active;
+            const projectOwner = await project.owner();
+            const isActive = await project.active();
             expect(projectOwner).to.equal(owner.address);
             expect(isActive).to.equal(true);
             // attempt to cancel project
@@ -217,7 +223,7 @@ describe("Test Funding", function () {
         })
         it('project duration can only be changed by the owner.', async () => {
             // check owner
-            const projectOwner = (await project.state()).owner;
+            const projectOwner = await project.owner();
             expect(projectOwner).to.not.equal(investor1.address);
             // attempt to change duration from investor
             await expect(project.connect(investor1).changeDuration(10)).to.be.reverted;
@@ -225,7 +231,7 @@ describe("Test Funding", function () {
         it('project duration can only be changed when the project has been completed or cancelled.', async () => {
             // set to inactive
             await project.connect(owner).completeProject();
-            const isActive = (await project.state()).active;
+            const isActive = await project.active();
             expect(isActive).to.equal(false);
             // attempt to change duration
             await expect(project.connect(owner).changeDuration(10)).to.be.reverted;
@@ -248,8 +254,8 @@ describe("Test Funding", function () {
         })
         it('project duration can be changed if everything is OK.', async () => {
             // check active and owner
-            const isActive = (await project.state()).active;
-            const projectOwner = (await project.state()).owner;
+            const isActive = await project.active();
+            const projectOwner = await project.owner();
             expect(isActive).to.equal(true);
             expect(projectOwner).to.equal(owner.address);
             // attempt to change duration
@@ -330,7 +336,7 @@ describe("Test Funding", function () {
             provider = waffle.provider;
     
         })
-        it('project info should be set properly after call function createProject', async () => {
+        it('standard project info should be set properly after call function createProject', async () => {
             const owner = buyer1.address;
             const receiver_addr = buyer1.address;
             const title = "I'm Title";
@@ -342,8 +348,25 @@ describe("Test Funding", function () {
             manager = await Manager.deploy();
 
             await expect(manager.connect(buyer1).createProject(receiver_addr, title, description, img_url, goal_amount, deadline_blocks_num))
-            .to.emit(manager, "NewProject")
+            .to.emit(manager, "NewStandardProject")
             .withArgs(owner, receiver_addr, title, description, img_url, ethers.BigNumber.from(goal_amount), ethers.BigNumber.from(deadline_blocks_num));
+    
+        })
+        it('lottery project info should be set properly after call function createLotteryProject', async () => {
+            const owner = buyer1.address;
+            const receiver_addr = buyer1.address;
+            const title = "I'm Title";
+            const description = "I'm Description";
+            const img_url = "www.hualahuala.com/image1";
+            const goal_amount = ethers.utils.parseEther("1.1");
+            const deadline_blocks_num = 3;
+            const percentage = 50;
+            const Manager = await ethers.getContractFactory("Manager");
+            manager = await Manager.deploy();
+
+            await expect(manager.connect(buyer1).createLotteryProject(receiver_addr, title, description, img_url, goal_amount, deadline_blocks_num, percentage))
+            .to.emit(manager, "NewLotteryProject")
+            .withArgs(owner, receiver_addr, title, description, img_url, ethers.BigNumber.from(goal_amount), ethers.BigNumber.from(deadline_blocks_num), ethers.BigNumber.from(percentage));
     
         })
         it('project info will be pushed into project array after call function createProject', async () => {
