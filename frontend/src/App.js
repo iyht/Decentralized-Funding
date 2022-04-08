@@ -120,8 +120,7 @@ function App() {
       <Router>
         <Layout style={{ minHeight: "100vh" }}>
           <Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
-            <Menu
-              theme="dark"
+            <Menu theme="dark"
               mode="horizontal"
               onClick={handleClickMenuItem}
               selectedKeys={[currentMenuItem]}
