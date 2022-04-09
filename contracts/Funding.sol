@@ -161,6 +161,7 @@ abstract contract Project{
     // state stores all the infomation about for a project
     address public owner;
     address public receiver;
+    string public category;
     string public title;
     string public description;
     string public img_url;
@@ -219,6 +220,7 @@ contract ProjectStandard is Project{
                uint _duration) {
         owner = _owner;
         receiver = _receiver;
+        category = "standard";
         title = _title;
         description = _description;
         img_url = _img_url;
@@ -311,6 +313,7 @@ contract ProjectLottery is ProjectStandard{
                uint _duration,
                uint8 _percentage) ProjectStandard(_owner, _receiver, _title, _description, _img_url, _goal_amount, _duration){
                    lottery.percentage = _percentage;
+                   category = "lottery";
                }
 
     function contribute() public isActive ensure minimum override payable returns(bool){
