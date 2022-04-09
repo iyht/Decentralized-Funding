@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import UBClogo from "./ubc-logo.png";
 import { NavRoutes } from "./components/routes";
+import MyWallet from "./components/wallet/MyWallet";
 
 const { Header, Content, Footer } = Layout;
 
@@ -61,6 +62,7 @@ function App() {
               className="site-layout-background"
               style={{ padding: 24, minHeight: 380 }}
             >
+              <MyWallet />
               <NavRoutes />
             </div>
           </Content>

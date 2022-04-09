@@ -14,7 +14,7 @@ export const NavRoutes = () => {
       <Route path="/projects/search/:keyword/" element={<ProjectsBoard />} />
       <Route exact path="/create-project" element={<CreateProject />} />
       <Route exact path="/dashboard" element={<Dashboard />} />
-      <Route exact path="/wallet" element={<MyWallet />} />
+      {/* <Route exact path="/wallet" element={<MyWallet />} /> */}
     </Routes>
   );
 };
