@@ -32,132 +32,40 @@ const ManagerInfo = {
 
 const { Title } = Typography;
 
-const FormSizeDemo = () => {
-  const [componentSize, setComponentSize] = useState('default');
 
-  const onFormLayoutChange = ({ size }) => {
-    setComponentSize(size);
-  };
-
-  return (
-    <Form
-      labelCol={{
-        span: 4,
-      }}
-      wrapperCol={{
-        span: 14,
-      }}
-      layout="horizontal"
-      initialValues={{
-        size: componentSize,
-      }}
-      onValuesChange={onFormLayoutChange}
-      size={componentSize}
-    >
-      <Form.Item label="Form Size" name="size">
-        <Radio.Group>
-          <Radio.Button value="small">Small</Radio.Button>
-          <Radio.Button value="default">Default</Radio.Button>
-          <Radio.Button value="large">Large</Radio.Button>
-        </Radio.Group>
-      </Form.Item>
-      <Form.Item label="Input">
-        <Input />
-      </Form.Item>
-      <Form.Item label="Select">
-        <Select>
-          <Select.Option value="demo">Demo</Select.Option>
-        </Select>
-      </Form.Item>
-      <Form.Item label="TreeSelect">
-        <TreeSelect
-          treeData={[
-            {
-              title: 'Light',
-              value: 'light',
-              children: [
-                {
-                  title: 'Bamboo',
-                  value: 'bamboo',
-                },
-              ],
-            },
-          ]}
-        />
-      </Form.Item>
-      <Form.Item label="Cascader">
-        <Cascader
-          options={[
-            {
-              value: 'zhejiang',
-              label: 'Zhejiang',
-              children: [
-                {
-                  value: 'hangzhou',
-                  label: 'Hangzhou',
-                },
-              ],
-            },
-          ]}
-        />
-      </Form.Item>
-      <Form.Item label="DatePicker">
-        <DatePicker />
-      </Form.Item>
-      <Form.Item label="InputNumber">
-        <InputNumber />
-      </Form.Item>
-      <Form.Item label="Switch" valuePropName="checked">
-        <Switch />
-      </Form.Item>
-      <Form.Item label="Button">
-        <Button>Button</Button>
-      </Form.Item>
-    </Form>
-  );
-};
+const ProjectForm = () => {
 
 
+  const [form] = Form.useForm()
 
-export const CreateProject = ({}) => {
-  const context = useWeb3React();
-  const { library, active } = context;
-
-  const [signer, setSigner] = useState();
-
-  useEffect(() => {
-    if (!library) {
-      setSigner(undefined);
-      return;
-    }
-
-    setSigner(library.getSigner());
-  }, [library]);
-  console.log('lib', library);
-
-  const create = async () => {
-
+  const onFinish = async () => {
     // get provider info from the the wallet. The wallet should be connected to the ropsten already.
     const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     let userAddress = await signer.getAddress();
-
+    
     // get the contract instance
     const manager = new ethers.Contract(ManagerInfo.address, ManagerInfo.abi, signer);
 
-    console.log("manager", manager);
-    console.log("abi", ManagerInfo.abi);
 
-    // prep the args for create the project
-    const receiver_addr = "";
-    const title = "I'm Title";
-    const description = "I'm Description";
-    const img_url = "www.hualahuala.com/image1";
-    const goal_amount = ethers.utils.parseEther("1.1");
-    const deadline_blocks_num = 3;
+    // prep args for creating the project
+    const receiver_addr = userAddress;
+    const title = form.getFieldValue('title');
+    const description = form.getFieldValue('description');
+    const img_url = "www.hualahuala.com/image1"; // TODO find a way to store the image and pass the img url
+    const goal_amount = ethers.utils.parseEther(String(form.getFieldValue('goal_amount')));
+    const duration = 3;  // TODO replace duartion with due_date
+    const due_date = String(form.getFieldValue('due_date'));
 
-    // add listener
+    console.log("receiver_addr", receiver_addr);
+    console.log("title", title);
+    console.log("description", description);
+    console.log("img_url", img_url);
+    console.log("goal_amount", goal_amount);
+    console.log("duration", duration);
+    console.log("due_date", due_date);
+
     manager.on("NewStandardProject", (
       sender,
       receiver,
@@ -169,22 +77,48 @@ export const CreateProject = ({}) => {
       console.log("received event");
       console.log(sender, receiver, title, desc, imgUrl, goalAmount, duration, event);
     });
-
     // create the project
-    await manager.createProject(userAddress, title, description, img_url, goal_amount, deadline_blocks_num);
+    await manager.createProject(receiver_addr, title, description, img_url, goal_amount, duration);
 
     // call contract to get all the projects
-    let res = await manager.getAllProjects();
-    console.log(res);
-    console.log("end");
+    let allProjects = await manager.getAllProjects();
+    console.log("allProjects", allProjects);
   }
-  create();
 
+
+  return ( 
+      <Form 
+      form={form}
+      name="Project"
+      onFinish={onFinish}
+       >
+        <Form.Item name="title" label="Title" rules={[ { required: true }, ]} >
+          <Input />
+        </Form.Item>
+        <Form.Item name="description" label="Description" rules={[ { required: true }, ]} >
+          <Input />
+        </Form.Item>
+        <Form.Item name="goal_amount" label="Goal Amount" rules={[ { required: true }, ]} >
+          <InputNumber/>
+        </Form.Item>
+        <Form.Item label="Due Date" name="due_date">
+          <DatePicker />
+        </Form.Item>
+        <Form.Item >
+          <Button type="primary" htmlType="submit">Submit</Button>
+        </Form.Item> 
+      </Form>)
+    
+};
+
+
+
+export const CreateProject = () => {
 
   return (
     <div>
       <Title level={2}>Create your project now</Title>
-      <FormSizeDemo/>
+      <ProjectForm/>
     </div>
   );
 };
