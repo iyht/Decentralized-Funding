@@ -27,6 +27,7 @@ describe("Test Funding", function () {
             const timestamp = (await provider.getBlock(await(project.deployTransaction.wait()).blockNumber)).timestamp;
             expect(await project.owner()).to.equal(buyer1.address);
             expect(await project.receiver()).to.equal(buyer2.address);
+            expect(await project.category()).to.equal("standard");
             expect(await project.title()).to.equal(title);
             expect(await project.description()).to.equal(description);
             expect(await project.img_url()).to.equal(img_url);
