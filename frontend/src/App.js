@@ -46,12 +46,13 @@ function App() {
               className="site-layout-background"
               style={{ padding: 24, minHeight: 380 }}
             >
+              <MyWallet/>
               <Routes>
                 <Route exact path="/" element={<SearchProject />} />
                 <Route exact path="/projects" element={<ProjectsBoard />} />
                 <Route exact path="/create-project" element={<CreateProject />} />
                 <Route exact path="/dashboard" element={<Dashboard />} />
-                <Route exact path="/wallet" element={<MyWallet />} />
+                {/* <Route exact path="/wallet" element={<MyWallet />} /> */}
               </Routes>
             </div>
           </Content>

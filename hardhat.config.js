@@ -31,7 +31,7 @@ module.exports = {
       }
     },
     ropsten:{
-      url: process.env.ALCHEMY_API_KEY,
+      url: process.env.ALCHEMY_API_KEY_URL,
       accounts: [process.env.ROPSTEN_PRIVATE_KEY]
     }
   } 
