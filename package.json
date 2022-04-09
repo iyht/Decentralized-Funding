@@ -25,6 +25,7 @@
     "hardhat": "^2.9.1"
   },
   "dependencies": {
-    "chai-as-promised": "^7.1.1"
+    "chai-as-promised": "^7.1.1",
+    "dotenv": "^16.0.0"
   }
 }
