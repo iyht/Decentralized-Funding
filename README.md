@@ -31,10 +31,10 @@ Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ## Deploy Contract to Live Net
 - To deploy a live testnet, we first need to access the testnet node. AlchemyWeb3 is a company provides the ethereum node service.
 - Create a `.env` file that contains the API to the ethereum node, and the testnet account's private key. Make sure the account have some ether to deploy the contract.
-- To get the API, go to https://www.alchemyapi.io, sign up, create a new App in its dashboard, and replace "KEY" with its key
+- To get the API, go to https://www.alchemyapi.io, sign up, create a new App in its dashboard.
 - Replace this private key with your Ropsten account private key. To export your private key from Metamask, open Metamask and go to Account Details > Export Private Key. Be aware of NEVER putting real Ether into testing accounts
 ```
-ALCHEMY_API_KEY = "KEY"
+ALCHEMY_API_KEY_URL = "URL WITH YOUR API KEY"
 ROPSTEN_PRIVATE_KEY = "YOUR ROPSTEN PRIVATE KEY"
 ```
 - `./scripts/deploy.js` is the script the deploy the `Manager`. Run following command to invoke the script and deploy the contract to the testnet.
