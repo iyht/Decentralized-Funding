@@ -4,7 +4,7 @@ import ProjectLottery from "./../../artifacts/contracts/Funding.sol/ProjectLotte
 import ProjectStandard from "./../../artifacts/contracts/Funding.sol/ProjectStandard.json";
 
 // this is the address where the contract be deployed
-const CONTRACT_ADDRESS = "0xc9af75014a81188256172C2311EA38B2e6A0a223";
+const CONTRACT_ADDRESS = "0xBdAA631296c897d9F1d800D1A5f9FC580CB8A5B5";
 
 export const ManagerInfo = {
   address: CONTRACT_ADDRESS,

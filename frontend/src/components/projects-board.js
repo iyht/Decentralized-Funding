@@ -10,7 +10,6 @@ export const ProjectsBoard = ({}) => {
 
   useEffect(() => {
     async function getManager() {
-
       const provider = new ethers.providers.Web3Provider(
         window.ethereum,
         "any"
@@ -23,13 +22,15 @@ export const ProjectsBoard = ({}) => {
         ManagerInfo.abi,
         signer
       );
+
       const _projects = await manager.getAllProjects();
-      if (_.isEqual(projects, _projects)) {
+      if (!_.isEqual(projects, _projects)) {
         setProjects(_projects);
+        console.log(_projects);
       }
     }
     getManager();
   }, [projects]);
-  console.log(projects);
-  return <ProjectList projectAddress={projects} />;
+  console.log("projects log:" + projects);
+  return <ProjectList projects={projects} />;
 };
