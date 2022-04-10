@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Button, Input } from "antd";
-import { Contract, ethers, Signer } from "ethers";
+import { ethers } from "ethers";
 import _ from "lodash";
 
 import { ManagerInfo, ProjectInfo } from "./config/artifacts";
@@ -12,7 +12,6 @@ export const SearchProject = ({}) => {
   const [signer, setSigner] = useState();
   const [projectsAddress, setProjectsAddress] = useState([]);
   const [projectContracts, setProjectContracts] = useState([]);
-  const [titles, setTitles] = useState([]);
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
@@ -50,36 +49,32 @@ export const SearchProject = ({}) => {
       return new ethers.Contract(address, ProjectInfo.abi, signer);
     });
 
-    if (projectContracts.address !== _projectContracts.address) {
+    if (_projectContracts.length !== projectContracts.length) {
       setProjectContracts(_projectContracts);
     }
   }, [projectsAddress, projectContracts]);
 
-  useEffect(() => {
-    if (!projectContracts || projectContracts.length === 0) {
-      return;
-    }
+  const searchResult = async (query) => {
+    const asyncFilter = async (projectContracts, predicate) => {
+      const results = await Promise.all(projectContracts.map(predicate));
 
-    async function getProjectTitles() {
-      for (let index = 0; index < projectContracts.length; index++) {
-        const contract = projectContracts[index];
-        const title = await contract.title();
-        titles.push(title);
-        console.log({ title, titles });
-        setTitles(titles);
-      }
-    }
+      return projectsAddress.filter((_v, index) => {
+        return results[index];
+      });
+    };
 
-    getProjectTitles();
-  }, [projectContracts, titles]);
+    const filtered = await asyncFilter(projectContracts, async (contract) => {
+      const title = await contract.title();
+      return title.includes(query);
+    });
 
-  const searchResult = (query) => {
-    console.log({ query, titles });
-    return [];
+    return filtered;
   };
 
   const onSearch = (value) => {
-    setOptions(value ? searchResult(value) : []);
+    searchResult(value).then((filtered) => {
+      setOptions(value ? filtered : []);
+    });
   };
 
   const handleClickCreateProject = () => {
