@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 contract Manager{
 
     Project[] public projects;
+    mapping(address => uint256) public contribution;
 
     event NewStandardProject(
         //address contractAddr,
@@ -81,6 +82,17 @@ contract Manager{
         return fundedProjects;
     }
 
+    function addContribution (address _contributor, uint256 _contribution) external {
+        bool auth = false;
+        for(uint i = 0; i < projects.length; i++){
+            if(address(projects[i]) == msg.sender) {
+                auth = true;
+            }
+        }
+        require(auth, "This function should only be called by project contracts");
+        contribution[_contributor] += _contribution;
+    }
+
     /**
         @dev Function to create a new Project
         @param receiver Reveiver of the new Project
@@ -139,7 +151,7 @@ contract Manager{
         require(bytes(_desc).length != 0, "Description cannot be empty!");
         require(_goalAmount > 0, "Funding goal should not be zero!");
         require(_duration > 0, "Project duration should be at least 1 day!");
-        require(_percentage > 5 && _percentage < 75, "At least 5% of funding and at most 75% of funding can be used as lottery prize pool!");
+        require(_percentage >= 5 && _percentage <= 75, "At least 5% of funding and at most 75% of funding can be used as lottery prize pool!");
 
         Project project = new ProjectLottery(msg.sender, _receiver, _title, _desc, _imgUrl, _goalAmount, _duration, _percentage);
         projects.push(project);
@@ -159,6 +171,7 @@ contract Manager{
 abstract contract Project{
 
     // state stores all the infomation about for a project
+    Manager public factory;
     address public owner;
     address public receiver;
     string public category;
@@ -218,6 +231,7 @@ contract ProjectStandard is Project{
                string memory _img_url,
                uint256 _goal_amount,
                uint _duration) {
+        factory = Manager(msg.sender);
         owner = _owner;
         receiver = _receiver;
         category = "standard";
@@ -232,14 +246,18 @@ contract ProjectStandard is Project{
     }
 
     function contribute() public isActive ensure minimum override virtual payable returns(bool){
+        require(msg.sender != owner && msg.sender != receiver, "Contributing to you own project is not allowed.");
         amount += msg.value;
         
         // record the funder if it's the first time contribute this project
         if(contribution[msg.sender] == 0){
             funders.push(msg.sender);
         }
-
         contribution[msg.sender] += msg.value;
+
+        // also update total contribution
+        factory.addContribution(msg.sender, msg.value);
+
         emit fundingRecevied(msg.sender, msg.value, address(this).balance);
         return true;
     }
@@ -274,22 +292,6 @@ contract ProjectStandard is Project{
     function getNumFunders() external view override returns(uint) {
         return funders.length;
     }
-
-    // TODO change it events
-    // function getCurrentState() public override {
-    //     emit stateInfo(owner,
-    //             receiver,
-    //             title,
-    //             description,
-    //             img_url,
-    //             amount,
-    //             goal_amount,
-    //             address(this).balance,
-    //             timestamp,
-    //             duration,
-    //             funders);
-    // }
-
 }
 
 contract ProjectLottery is ProjectStandard{
@@ -317,14 +319,18 @@ contract ProjectLottery is ProjectStandard{
                }
 
     function contribute() public isActive ensure minimum override payable returns(bool){
+        require(msg.sender != owner && msg.sender != receiver, "Contributing to you own project is not allowed.");
         amount += msg.value;
         
         // record the funder if it's the first time contribute this project
         if(contribution[msg.sender] == 0){
             funders.push(msg.sender);
         }
-
         contribution[msg.sender] += msg.value;
+
+        // also update total contribution
+        factory.addContribution(msg.sender, msg.value);
+
         lottery.prize = address(this).balance / 100 * lottery.percentage;
         emit fundingRecevied(msg.sender, msg.value, address(this).balance);
         return true;
