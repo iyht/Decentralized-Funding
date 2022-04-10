@@ -1,4 +1,12 @@
 import { Card, Avatar } from "antd";
+import { ethers, Signer, Wallet } from "ethers";
+import { ProjectInfo } from "../config/artifacts";
+import { useCallback, useEffect, useState } from "react";
+import Icon, { HomeOutlined } from '@ant-design/icons';
+import { DollarTwoTone, HeartTwoTone } from '@ant-design/icons';
+import { Space } from 'antd';
+import _ from "lodash";
+
 import {
   EditOutlined,
   EllipsisOutlined,
@@ -7,16 +15,56 @@ import {
 
 const { Meta } = Card;
 
-export const ProjectCard = ({ project }) => {
+export const ProjectCard = ({ projectAddress }) => {
+  const [project, setProject] = useState({});
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [goal_amount, setGoal_amount] = useState(0);
+  const [img_url, setImg_url] = useState("");
+  const [duration, setDuration] = useState(0);
+  const [category, setCategory] = useState("");
+
+  useEffect(() => {
+    if (!projectAddress) {
+      return;
+    }
+    async function getProject() {
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum,
+        "any"
+      );
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const _project = new ethers.Contract(
+        projectAddress,
+        ProjectInfo.abi,
+        signer
+      );
+      if (_project.address !== project.address) {
+        setProject(_project);
+      }
+    }
+    getProject();
+  }, [project]);
+
+  useEffect(() => {
+    if (_.isEmpty(project)) {
+      return ;
+    }
+    project.title().then(title => setTitle(title));
+    project.description().then(description => setDescription(description));
+    project.img_url().then(img_url => setImg_url(img_url));
+    project.goal_amount().then(goal_amount => setGoal_amount(goal_amount));
+    project.duration().then(duration => setDuration(duration));
+    project.category().then(category => setCategory(category));
+  }, [project, title, description, img_url, goal_amount, duration, category]);
+
   return (
     <Card
       style={{ width: 300 }}
-      cover={
-        <img
-          alt="example"
-          src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-        />
-      }
+      cover={<img alt={""}
+      
+      src={"https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"} />}
       actions={[
         <SettingOutlined key="setting" />,
         <EditOutlined key="edit" />,
@@ -24,9 +72,9 @@ export const ProjectCard = ({ project }) => {
       ]}
     >
       <Meta
-        avatar={<Avatar src="https://joeschmoe.io/api/v1/random" />}
-        title="Card title"
-        description="This is the description"
+        title={title}
+        description={"Goal Amount is " + goal_amount + ", the duration day is "+ duration}
+        avatar={category === "standard" ? <HeartTwoTone twoToneColor="#eb2f96" style={{ fontSize: '32px'}} /> : <DollarTwoTone twoToneColor="#eb2f96" style={{ fontSize: '32px'}} />}
       />
     </Card>
   );

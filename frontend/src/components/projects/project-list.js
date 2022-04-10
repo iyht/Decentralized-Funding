@@ -8,7 +8,7 @@ export const ProjectList = ({ projects }) => {
       dataSource={projects}
       renderItem={(project) => (
         <List.Item>
-          <ProjectCard project={project} />
+          <ProjectCard projectAddress={project} />
         </List.Item>
       )}
     />
