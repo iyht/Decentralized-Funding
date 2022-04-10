@@ -19,7 +19,15 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.4",
+  solidity: {
+    version: "0.8.7",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  },
   paths: {
     artifacts: './frontend/src/artifacts'
   },
@@ -31,8 +39,10 @@ module.exports = {
       }
     },
     ropsten:{
-      url: process.env.ALCHEMY_API_KEY,
+      url: process.env.ALCHEMY_API_KEY_URL,
       accounts: [process.env.ROPSTEN_PRIVATE_KEY]
     }
-  } 
+    
+  },
+
 };
