@@ -27,7 +27,6 @@ import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 
 
 import { Contract, ethers, Signer } from 'ethers';
-
 import { ManagerInfo } from "./config/artifacts";
 
 

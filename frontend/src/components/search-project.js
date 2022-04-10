@@ -1,49 +1,80 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Button, Input } from "antd";
-import { Contract, ethers, Signer } from "ethers";
+import { ethers } from "ethers";
 import _ from "lodash";
 
-import { ManagerInfo } from "./config/artifacts";
+import { ManagerInfo, ProjectInfo } from "./config/artifacts";
 import { ProjectList } from "./projects/project-list";
 
 const { Search } = Input;
 
 export const SearchProject = ({}) => {
-  const [projects, setProjects] = useState([]);
+  const [signer, setSigner] = useState();
+  const [projectsAddress, setProjectsAddress] = useState([]);
+  const [projectContracts, setProjectContracts] = useState([]);
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
-    async function getManager() {
+    async function getManagerContract() {
       // get provider info from the the wallet. The wallet should be connected to the ropsten already.
       const provider = new ethers.providers.Web3Provider(
         window.ethereum,
         "any"
       );
       await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
+      setSigner(provider.getSigner());
 
       // get the contract instance
       const manager = new ethers.Contract(
         ManagerInfo.address,
         ManagerInfo.abi,
-        signer
+        provider.getSigner()
       );
 
-      const _projects = await manager.getAllProjects();
-      if (_.isEqual(projects, _projects)) {
-        setProjects(_projects);
+      const _projectsAddress = await manager.getAllProjects();
+      if (!_.isEqual(projectsAddress, _projectsAddress)) {
+        setProjectsAddress(_projectsAddress);
       }
     }
 
-    getManager();
-  }, [projects]);
+    getManagerContract();
+  }, [projectsAddress]);
 
-  const searchResult = (query) => {
-    return projects.filter((project, idx) => project.title.includes(query));
+  useEffect(() => {
+    if (!projectsAddress || projectsAddress.length === 0) {
+      return;
+    }
+
+    const _projectContracts = projectsAddress.map((address) => {
+      return new ethers.Contract(address, ProjectInfo.abi, signer);
+    });
+
+    if (_projectContracts.length !== projectContracts.length) {
+      setProjectContracts(_projectContracts);
+    }
+  }, [projectsAddress, projectContracts]);
+
+  const searchResult = async (query) => {
+    const asyncFilter = async (projectContracts, predicate) => {
+      const results = await Promise.all(projectContracts.map(predicate));
+
+      return projectsAddress.filter((_v, index) => {
+        return results[index];
+      });
+    };
+
+    const filtered = await asyncFilter(projectContracts, async (contract) => {
+      const title = await contract.title();
+      return title.includes(query);
+    });
+
+    return filtered;
   };
 
   const onSearch = (value) => {
-    setOptions(value ? searchResult(value) : []);
+    searchResult(value).then((filtered) => {
+      setOptions(value ? filtered : []);
+    });
   };
 
   const handleClickCreateProject = () => {
@@ -68,9 +99,7 @@ export const SearchProject = ({}) => {
           Create New Project
         </Button>
       </div>
-      <div>
-        <ProjectList projects={options} />
-      </div>
+      {options.length > 0 ? <ProjectList projects={options} /> : ""}
     </div>
   );
 };
