@@ -21,13 +21,7 @@ import {
 } from 'antd';
 
 import { Contract, ethers, Signer } from 'ethers';
-
-import Manager from "../artifacts/contracts/Funding.sol/Manager.json";
-
-const ManagerInfo = {
-  address: "0xc9af75014a81188256172C2311EA38B2e6A0a223", // this is the address where the contract be deployed
-  abi: Manager.abi
-}
+import { ManagerInfo } from "./config/artifacts";
 
 
 const { Title } = Typography;
