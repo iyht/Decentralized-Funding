@@ -28,12 +28,7 @@ import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 
 import { Contract, ethers, Signer } from 'ethers';
 
-import Manager from "../artifacts/contracts/Funding.sol/Manager.json";
-
-const ManagerInfo = {
-  address: "0x52e3BbFB117a73B6fC7A317a9E4E06c539e10064", // this is the address where the contract be deployed
-  abi: Manager.abi
-}
+import { ManagerInfo } from "./config/artifacts";
 
 
 
