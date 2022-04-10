@@ -31,7 +31,7 @@ import { Contract, ethers, Signer } from 'ethers';
 import Manager from "../artifacts/contracts/Funding.sol/Manager.json";
 
 const ManagerInfo = {
-  address: "0xc9af75014a81188256172C2311EA38B2e6A0a223", // this is the address where the contract be deployed
+  address: "0x52e3BbFB117a73B6fC7A317a9E4E06c539e10064", // this is the address where the contract be deployed
   abi: Manager.abi
 }
 
@@ -112,6 +112,21 @@ const ProjectForm = () => {
 
 
   const [form] = Form.useForm()
+  const [lottery_check, setChecked] = React.useState(false);
+
+  const loadProfile = () => {	
+    form.setFieldsValue({
+      percentage: 0,
+      title: "<Replace with your project title>",
+      description: "<Describe the usage of the funding>",
+      duration: 1
+    });
+	}
+
+  useEffect(() => {
+		loadProfile();
+	}, []);
+
 
   const onFinish = async () => {
     // get provider info from the the wallet. The wallet should be connected to the ropsten already.
@@ -130,8 +145,9 @@ const ProjectForm = () => {
     const description = form.getFieldValue('description');
     const img_url = "www.hualahuala.com/image1"; // TODO find a way to store the image and pass the img url
     const goal_amount = ethers.utils.parseEther(String(form.getFieldValue('goal_amount')));
-    const duration = 3;  // TODO replace duartion with due_date
+    const duration = form.getFieldValue('duration');  
     const due_date = String(form.getFieldValue('due_date'));
+    const percentage = form.getFieldValue('percentage')
 
     console.log("receiver_addr", receiver_addr);
     console.log("title", title);
@@ -140,6 +156,7 @@ const ProjectForm = () => {
     console.log("goal_amount", goal_amount);
     console.log("duration", duration);
     console.log("due_date", due_date);
+    console.log("percentage", percentage);
 
     manager.on("NewStandardProject", (
       sender,
@@ -152,8 +169,15 @@ const ProjectForm = () => {
       console.log("received event");
       console.log(sender, receiver, title, desc, imgUrl, goalAmount, duration, event);
     });
+
     // create the project
-    await manager.createProject(receiver_addr, title, description, img_url, goal_amount, duration);
+    if(lottery_check){
+      console.log("create lottery project");
+      await manager.createLotteryProject(receiver_addr, title, description, img_url, goal_amount, duration, percentage);
+    }else{
+      console.log("create standard project");
+      await manager.createProject(receiver_addr, title, description, img_url, goal_amount, duration);
+    }
 
     // call contract to get all the projects
     let allProjects = await manager.getAllProjects();
@@ -165,6 +189,7 @@ const ProjectForm = () => {
     <Form
       form={form}
       name="Project"
+      layout="horizontal"
       onFinish={onFinish}
     >
       <Form.Item name="title" label="Title" rules={[{ required: true },]} >
@@ -179,6 +204,13 @@ const ProjectForm = () => {
       <Form.Item name="duration" label="Duration(days)" rules={[{ required: true },]} >
         <InputNumber />
       </Form.Item>
+      <Form.Item name="lottery" label="Lottery Mode">
+        <Switch checked={lottery_check} onChange={setChecked} />
+      </Form.Item>
+      <Form.Item name="percentage" label="Percentage" style={lottery_check !== true ? { display: 'none'} : {}} >
+        <InputNumber/>
+      </Form.Item>
+
       <Form.Item >
         <Button type="primary" htmlType="submit">Submit</Button>
       </Form.Item>
@@ -194,7 +226,6 @@ export const CreateProject = () => {
     <div>
       <Title level={2}>Create your project now</Title>
       <ProjectForm />
-      {/* <Avatar /> */}
     </div>
   );
 };
