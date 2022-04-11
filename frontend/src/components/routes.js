@@ -9,9 +9,9 @@ export const NavRoutes = () => {
   return (
     <Routes>
       <Route exact path="/" element={<SearchProject />} />
-      <Route exact path="/projects" element={<ProjectsBoard />} />
-      <Route exact path="/create-project" element={<CreateProject />} />
-      <Route exact path="/dashboard" element={<Dashboard />} />
+      <Route path="/projects" element={<ProjectsBoard />} />
+      <Route path="/create-project" element={<CreateProject />} />
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 };
