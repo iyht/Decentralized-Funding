@@ -1,19 +1,19 @@
 import "./App.css";
-import { useState, createContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import _ from "lodash";
+import {  ethers } from 'ethers';
+import { useWeb3React } from "@web3-react/core";
 
 import UBClogo from "./ubc-logo.png";
 import { NavRoutes } from "./components/routes";
 import MyWallet from "./components/wallet/MyWallet";
-import { Contract, ethers, Signer } from 'ethers';
 import { ManagerInfo, ProjectInfo } from "./components/config/artifacts";
 import { ContractContext } from "./components/utils/contract_context";
-import lib from "@ant-design/icons";
-import { useWeb3React } from "@web3-react/core";
-
-import _, { add, result } from "lodash";
 import { Project, ProjectContext } from "./components/utils/project_context";
+
+
 const { Header, Content, Footer } = Layout;
 
 const pathname = {
@@ -22,14 +22,12 @@ const pathname = {
   searchProjects: "/projects/search/:keyword/",
   createProject: "/create-project",
   dashboard: "/dashboard",
-  wallet: "/wallet",
 };
 
 const menuItemName = {
   search: "Search",
   projects: "Projects",
   dashboard: "My Dashboard",
-  wallet: "My Wallet",
 };
 
 
@@ -40,9 +38,7 @@ function App() {
   const [provider, setProvider] = useState();
   const [signer, setSigner] = useState();
   const [projects, setProjects] = useState([]);
-
   const [projectsAddress, setProjectsAddress] = useState([]);
-  // const [projectContracts, setProjectContracts] = useState([]);
   const [currentMenuItem, setCurrentMenuItem] = useState(
     window.location.pathname
   );
@@ -53,7 +49,11 @@ function App() {
     await _provider.send("eth_requestAccounts", []);
     const _signer = _provider.getSigner();
     // get the contract instance
-    const _manager = new ethers.Contract(ManagerInfo.address, ManagerInfo.abi, _signer);
+    const _manager = new ethers.Contract(
+      ManagerInfo.address,
+      ManagerInfo.abi,
+      _signer
+    );
 
     setManager(_manager);
     setProvider(_provider);
@@ -66,14 +66,12 @@ function App() {
     }
     async function getManagerContract() {
       const _projectsAddress = await manager.getAllProjects();
-      console.log(_projectsAddress);
       if (!_.isEqual(projectsAddress, _projectsAddress)) {
         setProjectsAddress(_projectsAddress);
       }
     }
     await getManagerContract();
-
-  }
+  };
 
   const initProjects = async () => {
     if (!projectsAddress || projectsAddress.length === 0) {
@@ -119,7 +117,16 @@ function App() {
 
   return (
     <ProjectContext.Provider value={{ projects, setProjects }}>
-      <ContractContext.Provider value={{ manager, provider, signer, setManager, setProvider, setSigner }}>
+      <ContractContext.Provider
+        value={{
+          manager,
+          provider,
+          signer,
+          setManager,
+          setProvider,
+          setSigner,
+        }}
+      >
         <div className="App">
           <Router>
             <Layout style={{ minHeight: "100vh" }}>
@@ -145,8 +152,8 @@ function App() {
                   className="site-layout-background"
                   style={{ padding: 24, minHeight: 380 }}
                 >
-                  <NavRoutes />
                   <MyWallet />
+                  <NavRoutes />
                 </div>
               </Content>
               <Footer style={{ textAlign: "center" }}>
