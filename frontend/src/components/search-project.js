@@ -1,35 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button, Input } from "antd";
 import { ethers } from "ethers";
 import _ from "lodash";
 
 import { ManagerInfo, ProjectInfo } from "./config/artifacts";
 import { ProjectList } from "./projects/project-list";
+import { ContractContext } from "./utils/contract_context";
 
 const { Search } = Input;
 
 export const SearchProject = ({}) => {
-  const [signer, setSigner] = useState();
+  const { manager, provider, signer, setManager, setProvider, setSigner } = useContext(ContractContext);
   const [projectsAddress, setProjectsAddress] = useState([]);
   const [projectContracts, setProjectContracts] = useState([]);
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
     async function getManagerContract() {
-      // get provider info from the the wallet. The wallet should be connected to the ropsten already.
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum,
-        "any"
-      );
-      await provider.send("eth_requestAccounts", []);
-      setSigner(provider.getSigner());
-
-      // get the contract instance
-      const manager = new ethers.Contract(
-        ManagerInfo.address,
-        ManagerInfo.abi,
-        provider.getSigner()
-      );
 
       const _projectsAddress = await manager.getAllProjects();
       if (!_.isEqual(projectsAddress, _projectsAddress)) {
