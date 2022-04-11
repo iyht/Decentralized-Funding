@@ -7,7 +7,11 @@ import {
   Progress,
   Statistic,
   Typography,
+  Row,
+  Col,
+  Space,
 } from "antd";
+import { DollarOutlined } from "@ant-design/icons";
 import _ from "lodash";
 
 const { Title, Text } = Typography;
@@ -116,29 +120,42 @@ export const ContributeProject = ({ project }) => {
   return (
     <div>
       <Title>{title}</Title>
-      <Image width={"20%"} src={imgUrl} />
-      <Text>{description}</Text>
+      <Row>
+        <Col span={12}>
+          <Image width={360} src={imgUrl} />
+          <div style={{ marginTop: 24 }}>
+            <Text>{description}</Text>
+          </div>
+        </Col>
+        <Col span={12}>
+          <Countdown title="Countdown" value={remainTime} format="D day H hr" />
 
-      <Countdown title="Countdown" value={remainTime} format="D day H hr" />
+          <Progress
+            strokeColor={{
+              "0%": "#108ee9",
+              "100%": "#87d068",
+            }}
+            percent={(amount / goalAmount).toFixed(2)}
+            style={{ marginTop: 48, width: "80%" }}
+          />
 
-      <InputNumber
-        defaultValue={0}
-        prefix="$"
-        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-        parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
-        onChange={onAmountChange}
-      />
-      <Button type="primary" onClick={handleClickTransfer}>
-        Transfer
-      </Button>
-
-      <Progress
-        strokeColor={{
-          "0%": "#108ee9",
-          "100%": "#87d068",
-        }}
-        percent={(amount / goalAmount).toFixed(2)}
-      />
+          <Space style={{ marginTop: 48 }}>
+            <InputNumber
+              defaultValue={0.001}
+              addonAfter={"ETH"}
+              onChange={onAmountChange}
+              style={{ width: 200 }}
+            />
+            <Button
+              type="primary"
+              icon={<DollarOutlined />}
+              onClick={handleClickTransfer}
+            >
+              Transfer
+            </Button>
+          </Space>
+        </Col>
+      </Row>
     </div>
   );
 };
