@@ -15,6 +15,7 @@ import {
 import { DollarOutlined } from "@ant-design/icons";
 import { FaHandsHelping } from "react-icons/fa";
 import { IoTicketSharp } from "react-icons/io5";
+import { FcExpired } from "react-icons/fc";
 
 const { Title, Text } = Typography;
 const { Countdown } = Statistic;
@@ -34,6 +35,7 @@ export const ContributeProject = ({
     new ethers.providers.Web3Provider(window.ethereum, "any")
   );
   const [remainTime, setRemainTime] = useState(0);
+  const [blockTime, setBlockTime] = useState(0);
   const [contributeAmount, setContributeAmount] = useState(0);
 
   useEffect(() => {
@@ -50,9 +52,13 @@ export const ContributeProject = ({
         if (_remainTime !== remainTime) {
           setRemainTime(_remainTime);
         }
+
+        if (block.timestamp !== blockTime) {
+          setBlockTime(block.timestamp);
+        }
       });
     });
-  }, [provider, timestamp, duration, remainTime]);
+  }, [provider, timestamp, duration, remainTime, blockTime]);
 
   const onAmountChange = (value) => {
     setContributeAmount(value);
@@ -71,7 +77,7 @@ export const ContributeProject = ({
         {category === "standard" ? (
           <FaHandsHelping color="#eb2f96" size="32" />
         ) : (
-          <IoTicketSharp color="#eb2f96" size="32" />
+          <IoTicketSharp color="#096dd9" size="32" />
         )}
       </Title>
       <Row>
@@ -82,19 +88,31 @@ export const ContributeProject = ({
           </div>
         </Col>
         <Col span={12}>
-          <Countdown title="Countdown" value={remainTime} format="D day H hr" />
+          {remainTime - blockTime < 0 ? (
+            <Title level={3}>
+              <FcExpired /> Project has expired
+            </Title>
+          ) : (
+            <Countdown
+              title="Countdown"
+              value={remainTime}
+              format="D day H hr"
+            />
+          )}
 
-          <Progress
-            strokeColor={{
-              "0%": "#108ee9",
-              "100%": "#87d068",
-            }}
-            percent={(
-              (100 * ethers.utils.formatEther(amount)) /
-              ethers.utils.formatEther(goalAmount)
-            ).toFixed(2)}
-            style={{ marginTop: 48, width: "80%" }}
-          />
+          <div style={{ marginTop: 48, width: "80%" }}>
+            <div>target of {ethers.utils.formatEther(goalAmount)} ETH</div>
+            <Progress
+              strokeColor={{
+                "0%": "#108ee9",
+                "100%": "#87d068",
+              }}
+              percent={(
+                (100 * ethers.utils.formatEther(amount)) /
+                ethers.utils.formatEther(goalAmount)
+              ).toFixed(2)}
+            />
+          </div>
 
           <Space style={{ marginTop: 48 }}>
             <InputNumber
