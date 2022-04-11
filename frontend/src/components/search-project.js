@@ -35,7 +35,7 @@ export const SearchProject = ({ }) => {
 
     const filtered = await asyncFilter(projectContracts, async (contract) => {
       const title = await contract.title();
-      return title.includes(query);
+      return title.toLowerCase().includes(query.toLowerCase());
     });
 
     return filtered;
