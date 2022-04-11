@@ -1,11 +1,9 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import { ContributeProject } from "./contribute/contribute-project";
 import { CreateProject } from "./create-project";
 import { Dashboard } from "./dashboard";
 import { ProjectsBoard } from "./projects-board";
 import { SearchProject } from "./search-project";
-import MyWallet from "./wallet/MyWallet";
 
 export const NavRoutes = () => {
   return (
