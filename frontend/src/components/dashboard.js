@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
-import { Typography } from "antd";
+import _ from "lodash";
+import { Typography, Divider } from "antd";
 
 import { ProjectList } from "./projects/project-list";
 import { ContractContext } from "./utils/contract_context";
@@ -8,9 +9,10 @@ import { ProjectContext } from "./utils/project_context";
 const { Title } = Typography;
 
 export const Dashboard = () => {
-  const { signer } = useContext(ContractContext);
+  const { manager, signer } = useContext(ContractContext);
   const { projects, setProjects } = useContext(ProjectContext);
   const [projectsAddress, setprojectsAddress] = useState([]);
+  const [fundedProjects, setFundedProjects] = useState([]);
 
   useEffect(() => {
     if (!signer) {
@@ -25,12 +27,21 @@ export const Dashboard = () => {
       }
       setprojectsAddress(tmp);
     });
-  }, [projects, signer]);
+
+    manager?.getMyFundedProjects().then((_fundedProjects) => {
+      if (!_.isEqual(fundedProjects, _fundedProjects)) {
+        setFundedProjects(_fundedProjects);
+      }
+    });
+  }, [projects, signer, manager, fundedProjects]);
 
   return (
     <div>
-      <Title level={2}>My Project Dashboard</Title>
+      <Title level={2}>Owned Projects</Title>
       <ProjectList projects={projectsAddress} isDashboard={true} />
+      <Divider />
+      <Title level={2}>Funded Projects</Title>
+      <ProjectList projects={fundedProjects} />
     </div>
   );
 };
