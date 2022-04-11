@@ -7,11 +7,9 @@ import { Web3ReactProvider } from '@web3-react/core';
 import { getProvider } from './components/utils/provider';
 
 ReactDOM.render(
-  <React.StrictMode>
       <Web3ReactProvider getLibrary={getProvider}>
       <App />
-    </Web3ReactProvider>
-  </React.StrictMode>,
+    </Web3ReactProvider>,
   document.getElementById('root')
 );
 

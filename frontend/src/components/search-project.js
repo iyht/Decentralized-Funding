@@ -1,58 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Button, Input } from "antd";
 import { ethers } from "ethers";
 import _ from "lodash";
 
-import { ManagerInfo, ProjectInfo } from "./config/artifacts";
 import { ProjectList } from "./projects/project-list";
+import { ProjectContext } from "./utils/project_context";
 
 const { Search } = Input;
 
-export const SearchProject = ({}) => {
-  const [signer, setSigner] = useState();
-  const [projectsAddress, setProjectsAddress] = useState([]);
-  const [projectContracts, setProjectContracts] = useState([]);
+
+export const SearchProject = ({ }) => {
+  const { projects, setProjects } = useContext(ProjectContext);
+
   const [options, setOptions] = useState([]);
 
-  useEffect(() => {
-    async function getManagerContract() {
-      // get provider info from the the wallet. The wallet should be connected to the ropsten already.
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum,
-        "any"
-      );
-      await provider.send("eth_requestAccounts", []);
-      setSigner(provider.getSigner());
 
-      // get the contract instance
-      const manager = new ethers.Contract(
-        ManagerInfo.address,
-        ManagerInfo.abi,
-        provider.getSigner()
-      );
+  const projectContracts = projects.map((p) => {
+    return p.contract;
+  });
 
-      const _projectsAddress = await manager.getAllProjects();
-      if (!_.isEqual(projectsAddress, _projectsAddress)) {
-        setProjectsAddress(_projectsAddress);
-      }
-    }
+  const projectsAddress = projects.map((p) => {
+    return p.contractAddr;
+  });
 
-    getManagerContract();
-  }, [projectsAddress]);
-
-  useEffect(() => {
-    if (!projectsAddress || projectsAddress.length === 0) {
-      return;
-    }
-
-    const _projectContracts = projectsAddress.map((address) => {
-      return new ethers.Contract(address, ProjectInfo.abi, signer);
-    });
-
-    if (_projectContracts.length !== projectContracts.length) {
-      setProjectContracts(_projectContracts);
-    }
-  }, [projectsAddress, projectContracts]);
 
   const searchResult = async (query) => {
     const asyncFilter = async (projectContracts, predicate) => {

@@ -1,4 +1,12 @@
-import React, { useEffect } from "react";
+import { useWeb3React } from '@web3-react/core';
+import React, {
+  ChangeEvent,
+  MouseEvent,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
 import {
   Typography,
   Form,
@@ -12,7 +20,7 @@ import {
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { ethers } from "ethers";
 
-import { ManagerInfo } from "./config/artifacts";
+import { ContractContext } from './utils/contract_context';
 
 const { Title } = Typography;
 
@@ -87,19 +95,23 @@ const ProjectForm = () => {
   const [form] = Form.useForm();
   const [lottery_check, setChecked] = React.useState(false);
 
-  const onFinish = async () => {
-    // get provider info from the the wallet. The wallet should be connected to the ropsten already.
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    let userAddress = await signer.getAddress();
+  const loadProfile = () => {
+    form.setFieldsValue({
+      percentage: 0,
+      title: "<Replace with your project title>",
+      description: "<Describe the usage of the funding>",
+      duration: 1
+    });
+  }
 
-    // get the contract instance
-    const manager = new ethers.Contract(
-      ManagerInfo.address,
-      ManagerInfo.abi,
-      signer
-    );
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const { manager, provider, signer } = useContext(ContractContext);
+
+  const onFinish = async () => {
+    let userAddress = await signer.getAddress();
 
     // prep args for creating the project
     const receiver_addr = userAddress;
@@ -110,7 +122,6 @@ const ProjectForm = () => {
       String(form.getFieldValue("goal_amount"))
     );
     const duration = form.getFieldValue("duration");
-    const due_date = String(form.getFieldValue("due_date"));
     const percentage = form.getFieldValue("percentage");
 
     manager.on(

@@ -1,35 +1,20 @@
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import _ from "lodash";
 
-import { ManagerInfo } from "./config/artifacts";
 import { ProjectList } from "./projects/project-list";
+import { ContractContext } from "./utils/contract_context";
+import { ProjectContext } from "./utils/project_context";
 
-export const ProjectsBoard = ({}) => {
-  const [projects, setProjects] = useState([]);
+export const ProjectsBoard = ({ }) => {
 
+  const { projects, setProjects } = useContext(ProjectContext);
+  const [projectsAddress, setprojectsAddress] = useState([]);
   useEffect(() => {
-    async function getManager() {
-      const provider = new ethers.providers.Web3Provider(
-        window.ethereum,
-        "any"
-      );
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
+    setprojectsAddress(projects.map((p) => {
+      return p.contractAddr;
+    }));
+  }, [projects])
 
-      const manager = new ethers.Contract(
-        ManagerInfo.address,
-        ManagerInfo.abi,
-        signer
-      );
-
-      const _projects = await manager.getAllProjects();
-      if (!_.isEqual(projects, _projects)) {
-        setProjects(_projects);
-      }
-    }
-    getManager();
-  }, [projects]);
-
-  return <ProjectList projects={projects} />;
+  return <ProjectList projects={projectsAddress} />;
 };

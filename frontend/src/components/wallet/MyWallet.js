@@ -117,8 +117,8 @@ export function ConnectionModule(){
 function MyWallet(props){
 
     return <div>
-          <ConnectionModule/>
           <WalletStatus/>
+          <ConnectionModule/>
     </div>
 }
 
