@@ -1,9 +1,9 @@
-import { ethers, Signer, Wallet } from "ethers";
-import { ProjectList } from "./projects/project-list";
-import { useWeb3React } from '@web3-react/core';
-import { useCallback, useEffect, useState } from 'react';
-import { ManagerInfo } from "./config/artifacts";
+import { ethers } from "ethers";
+import { useEffect, useState } from "react";
 import _ from "lodash";
+
+import { ManagerInfo } from "./config/artifacts";
+import { ProjectList } from "./projects/project-list";
 
 export const ProjectsBoard = ({}) => {
   const [projects, setProjects] = useState([]);
@@ -26,11 +26,10 @@ export const ProjectsBoard = ({}) => {
       const _projects = await manager.getAllProjects();
       if (!_.isEqual(projects, _projects)) {
         setProjects(_projects);
-        console.log(_projects);
       }
     }
     getManager();
   }, [projects]);
-  console.log("projects log:" + projects);
+
   return <ProjectList projects={projects} />;
 };
