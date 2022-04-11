@@ -1,12 +1,4 @@
-import { useWeb3React } from '@web3-react/core';
-import React, {
-  ChangeEvent,
-  MouseEvent,
-  ReactElement,
-  useContext,
-  useEffect,
-  useState
-} from 'react';
+import React, { useContext, useEffect } from "react";
 import {
   Typography,
   Form,
@@ -20,7 +12,7 @@ import {
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { ethers } from "ethers";
 
-import { ContractContext } from './utils/contract_context';
+import { ContractContext } from "./utils/contract_context";
 
 const { Title } = Typography;
 
@@ -100,9 +92,9 @@ const ProjectForm = () => {
       percentage: 0,
       title: "<Replace with your project title>",
       description: "<Describe the usage of the funding>",
-      duration: 1
+      duration: 1,
     });
-  }
+  };
 
   useEffect(() => {
     loadProfile();

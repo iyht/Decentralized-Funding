@@ -1,39 +1,37 @@
-import { ethers } from "ethers";
 import { useContext, useEffect, useState } from "react";
 import _ from "lodash";
+import { Typography } from "antd";
 
 import { ProjectList } from "./projects/project-list";
 import { ContractContext } from "./utils/contract_context";
 import { ProjectContext } from "./utils/project_context";
-import { useWeb3React } from "@web3-react/core";
 
-export const Dashboard = ({ }) => {
+const { Title } = Typography;
 
-    const { manager, provider, signer } = useContext(ContractContext);
-    const { projects, setProjects } = useContext(ProjectContext);
-    const [projectsAddress, setprojectsAddress] = useState([]);
+export const Dashboard = ({}) => {
+  const { manager, provider, signer } = useContext(ContractContext);
+  const { projects, setProjects } = useContext(ProjectContext);
+  const [projectsAddress, setprojectsAddress] = useState([]);
 
-
-    useEffect(() => {
-        if (!signer) {
-            return;
+  useEffect(() => {
+    if (!signer) {
+      return;
+    }
+    const tmp = [];
+    signer.getAddress().then((userAddress) => {
+      for (let i = 0; i < projects.length; i++) {
+        if (projects[i].owner === userAddress) {
+          tmp.push(projects[i].contractAddr);
         }
-        const tmp = []
-        signer.getAddress().then(
-            (userAddress) => {
-                for (let i = 0; i < projects.length; i++) {
-                    if (projects[i].owner === userAddress) {
-                        tmp.push(projects[i].contractAddr);
-                    }
-                }
-                setprojectsAddress(tmp);
-            }
-        );
+      }
+      setprojectsAddress(tmp);
+    });
+  }, [projects, signer]);
 
-
-
-    }, [projects, signer])
-
-
-    return <ProjectList projects={projectsAddress} isDashboard={true} />;
+  return (
+    <div>
+      <Title level={2}>My Project Dashboard</Title>
+      <ProjectList projects={projectsAddress} isDashboard={true} />
+    </div>
+  );
 };
