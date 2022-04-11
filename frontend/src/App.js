@@ -62,9 +62,12 @@ function App() {
   };
 
   const initProjectsAddress = async () =>{
-
+    if(!manager){
+      return;
+    }
     async function getManagerContract() {
       const _projectsAddress = await manager.getAllProjects();
+      console.log(_projectsAddress);
       if (!_.isEqual(projectsAddress, _projectsAddress)) {
         setProjectsAddress(_projectsAddress);
       }
@@ -83,8 +86,12 @@ function App() {
       const contract = new ethers.Contract(address, ProjectInfo.abi, signer);
       return contract.title().then((t) => {
         contract.owner().then((o) => {
-          _projects.push(new Project(address, contract, t, o));
-          setProjects([..._projects]);
+          contract.active().then((a) => {
+            if(a){
+              _projects.push(new Project(address, contract, t, o));
+              setProjects([..._projects]);
+            }
+          })
         })
 
       });

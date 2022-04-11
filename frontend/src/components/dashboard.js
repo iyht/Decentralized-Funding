@@ -5,8 +5,10 @@ import _ from "lodash";
 import { ProjectList } from "./projects/project-list";
 import { ContractContext } from "./utils/contract_context";
 import {ProjectContext} from "./utils/project_context";
+import {useWeb3React} from "@web3-react/core";
 
 export const Dashboard = ({}) => {
+
   const { manager, provider, signer } = useContext(ContractContext);
   const { projects, setProjects} = useContext(ProjectContext);
   const [projectsAddress, setprojectsAddress] = useState([]);
@@ -33,5 +35,5 @@ export const Dashboard = ({}) => {
   }, [projects, signer])
 
 
-  return <ProjectList projects={projectsAddress} />;
+  return <ProjectList projects={projectsAddress} isDashboard={true}/>;
 };

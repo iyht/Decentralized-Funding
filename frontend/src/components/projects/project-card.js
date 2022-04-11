@@ -15,7 +15,7 @@ import { FaHandsHelping } from "react-icons/fa";
 import { IoTicketSharp } from "react-icons/io5";
 import { MdDownloadDone, MdDeleteOutline } from "react-icons/md";
 
-import { ProjectInfo } from "../config/artifacts";
+import {ProjectInfo, ProjectLotteryInfo} from "../config/artifacts";
 import { ContributeProject } from "../contribute/contribute-project";
 
 const { Meta } = Card;
@@ -63,14 +63,26 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
       if (_signerAddress !== signerAddress) {
         setSignerAddress(_signerAddress);
       }
-      const _project = new ethers.Contract(
+      let _project = new ethers.Contract(
         projectAddress,
         ProjectInfo.abi,
         signer
       );
-      if (_project.address !== project.address) {
-        setProject(_project);
-      }
+      _project.category().then((_category) => {
+        if (_category === "lottery") {
+          console.log("lo project")
+          _project = new ethers.Contract(
+              projectAddress,
+              ProjectLotteryInfo.abi,
+              signer
+          );
+        }
+        if (_project.address !== project.address) {
+          setProject(_project);
+        }
+      });
+
+
     }
     getProject();
   }, [projectAddress, signerAddress, project]);
@@ -158,12 +170,14 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
 
   const handleDeleteProject = async () => {
     await project.cancelProject();
+
     message.success("Project deleted!");
   };
 
   const handleCompleteProject = async () => {
+    console.log("complete handle");
     if (category === "lottery") {
-      project.on("projectCompleted", (owner, receiver, amount) => {
+      project.on("lotteryDrawn", (receiver, amount) => {
         setWinner(receiver);
         setPrize(amount);
       });
