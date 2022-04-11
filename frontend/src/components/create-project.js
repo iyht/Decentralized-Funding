@@ -3,6 +3,7 @@ import React, {
   ChangeEvent,
   MouseEvent,
   ReactElement,
+  useContext,
   useEffect,
   useState
 } from 'react';
@@ -28,6 +29,7 @@ import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 
 import { Contract, ethers, Signer } from 'ethers';
 import { ManagerInfo } from "./config/artifacts";
+import { ContractContext } from './utils/contract_context';
 
 
 
@@ -121,16 +123,25 @@ const ProjectForm = () => {
 		loadProfile();
 	}, []);
 
+  const { manager, provider, signer } = useContext(ContractContext);
+  
+    console.log("out_pr", provider);
+    console.log("out_si", signer);
+    console.log("out_ma", manager);
+
+
+
+
 
   const onFinish = async () => {
     // get provider info from the the wallet. The wallet should be connected to the ropsten already.
-    const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
+    // const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+    // await provider.send("eth_requestAccounts", []);
+    // const signer = provider.getSigner();
     let userAddress = await signer.getAddress();
 
     // get the contract instance
-    const manager = new ethers.Contract(ManagerInfo.address, ManagerInfo.abi, signer);
+    // const manager = new ethers.Contract(ManagerInfo.address, ManagerInfo.abi, signer);
 
 
     // prep args for creating the project
