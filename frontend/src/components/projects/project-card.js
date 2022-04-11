@@ -221,12 +221,13 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
               {category === "standard" ? (
                 <FaHandsHelping color="#eb2f96" size="32" onClick={showModal} />
               ) : (
-                <IoTicketSharp color="#eb2f96" size="32" onClick={showModal} />
+                <IoTicketSharp color="#096dd9" size="32" onClick={showModal} />
               )}
             </Tooltip>
           }
         />
       </Card>
+
       <Modal
         title="Contribute"
         width={"80%"}
