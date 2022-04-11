@@ -3,16 +3,14 @@ import { Button, Input } from "antd";
 import { ethers } from "ethers";
 import _ from "lodash";
 
-import { ManagerInfo, ProjectInfo } from "./config/artifacts";
 import { ProjectList } from "./projects/project-list";
-import { ContractContext } from "./utils/contract_context";
 import { ProjectContext } from "./utils/project_context";
 
 const { Search } = Input;
 
 
 export const SearchProject = ({ }) => {
-  const { projects, setProjects} = useContext(ProjectContext);
+  const { projects, setProjects } = useContext(ProjectContext);
 
   const [options, setOptions] = useState([]);
 
@@ -21,11 +19,11 @@ export const SearchProject = ({ }) => {
     return p.contract;
   });
 
-  const projectsAddress = projects.map((p) =>{
+  const projectsAddress = projects.map((p) => {
     return p.contractAddr;
   });
 
- 
+
   const searchResult = async (query) => {
     const asyncFilter = async (projectContracts, predicate) => {
       const results = await Promise.all(projectContracts.map(predicate));

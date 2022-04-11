@@ -20,7 +20,6 @@ import {
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { ethers } from "ethers";
 
-import { ManagerInfo } from "./config/artifacts";
 import { ContractContext } from './utils/contract_context';
 
 const { Title } = Typography;
@@ -96,18 +95,18 @@ const ProjectForm = () => {
   const [form] = Form.useForm();
   const [lottery_check, setChecked] = React.useState(false);
 
-  const loadProfile = () => {	
+  const loadProfile = () => {
     form.setFieldsValue({
       percentage: 0,
       title: "<Replace with your project title>",
       description: "<Describe the usage of the funding>",
       duration: 1
     });
-	}
+  }
 
   useEffect(() => {
-		loadProfile();
-	}, []);
+    loadProfile();
+  }, []);
 
   const { manager, provider, signer } = useContext(ContractContext);
 

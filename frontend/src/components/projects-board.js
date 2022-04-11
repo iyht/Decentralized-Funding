@@ -6,14 +6,12 @@ import { ProjectList } from "./projects/project-list";
 import { ContractContext } from "./utils/contract_context";
 import { ProjectContext } from "./utils/project_context";
 
-export const ProjectsBoard = ({}) => {
-  const { manager, provider, signer } = useContext(ContractContext);
+export const ProjectsBoard = ({ }) => {
 
-
-  const { projects, setProjects} = useContext(ProjectContext);
+  const { projects, setProjects } = useContext(ProjectContext);
   const [projectsAddress, setprojectsAddress] = useState([]);
-  useEffect( () => {
-    setprojectsAddress(projects.map((p) =>{
+  useEffect(() => {
+    setprojectsAddress(projects.map((p) => {
       return p.contractAddr;
     }));
   }, [projects])

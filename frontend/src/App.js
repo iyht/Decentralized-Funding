@@ -47,7 +47,6 @@ function App() {
     window.location.pathname
   );
 
-  let _provider, _signer, _manager, _projectsAddress, _projectContracts;
   const initManager = async () => {
     // get provider info from the the wallet. The wallet should be connected to the ropsten already.
     const _provider = new ethers.providers.Web3Provider(window.ethereum, "any");
@@ -61,8 +60,8 @@ function App() {
     setSigner(_signer);
   };
 
-  const initProjectsAddress = async () =>{
-    if(!manager){
+  const initProjectsAddress = async () => {
+    if (!manager) {
       return;
     }
     async function getManagerContract() {
@@ -76,18 +75,18 @@ function App() {
 
   }
 
-  const initProjects = async () =>{
+  const initProjects = async () => {
     if (!projectsAddress || projectsAddress.length === 0) {
       return;
     }
 
     const _projects = []
-    const createProject =  (address) =>{
+    const createProject = (address) => {
       const contract = new ethers.Contract(address, ProjectInfo.abi, signer);
       return contract.title().then((t) => {
         contract.owner().then((o) => {
           contract.active().then((a) => {
-            if(a){
+            if (a) {
               _projects.push(new Project(address, contract, t, o));
               setProjects([..._projects]);
             }
@@ -102,14 +101,14 @@ function App() {
   }
 
   useEffect(() => {
-		initManager();
-	}, [library]);
+    initManager();
+  }, [library]);
 
-  useEffect(() =>{
+  useEffect(() => {
     initProjectsAddress();
   }, [manager])
 
-  useEffect(() =>{
+  useEffect(() => {
     initProjects();
   }, [projectsAddress])
 
@@ -119,49 +118,49 @@ function App() {
   };
 
   return (
-    <ProjectContext.Provider value={{projects, setProjects}}>
-    <ContractContext.Provider value={{manager, provider, signer, setManager, setProvider, setSigner}}>
-    <div className="App">
-      <Router>
-        <Layout style={{ minHeight: "100vh" }}>
-          <Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
-            <Menu
-              theme="dark"
-              mode="horizontal"
-              onClick={handleClickMenuItem}
-              selectedKeys={[currentMenuItem]}
-            >
-              {Object.entries(menuItemName).map(([page, name]) => (
-                <Menu.Item key={pathname[page]}>
-                  <a href={pathname[page]}>{name}</a>
-                </Menu.Item>
-              ))}
-            </Menu>
-          </Header>
-          <Content
-            className="site-layout"
-            style={{ padding: "0 50px", marginTop: 64 }}
-          >
-            <div
-              className="site-layout-background"
-              style={{ padding: 24, minHeight: 380 }}
-            >
-              <MyWallet />
-              <NavRoutes />
-            </div>
-          </Content>
-          <Footer style={{ textAlign: "center" }}>
-            <img
-              src={UBClogo}
-              alt="UBC Logo"
-              style={{ height: 30, width: 24, marginRight: 8 }}
-            />
-            EECE571G ©2022 Created by Haotian, Hanxin, Xuechun, Zhongze
-          </Footer>
-        </Layout>
-      </Router>
-    </div>
-    </ContractContext.Provider>
+    <ProjectContext.Provider value={{ projects, setProjects }}>
+      <ContractContext.Provider value={{ manager, provider, signer, setManager, setProvider, setSigner }}>
+        <div className="App">
+          <Router>
+            <Layout style={{ minHeight: "100vh" }}>
+              <Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
+                <Menu
+                  theme="dark"
+                  mode="horizontal"
+                  onClick={handleClickMenuItem}
+                  selectedKeys={[currentMenuItem]}
+                >
+                  {Object.entries(menuItemName).map(([page, name]) => (
+                    <Menu.Item key={pathname[page]}>
+                      <a href={pathname[page]}>{name}</a>
+                    </Menu.Item>
+                  ))}
+                </Menu>
+              </Header>
+              <Content
+                className="site-layout"
+                style={{ padding: "0 50px", marginTop: 64 }}
+              >
+                <div
+                  className="site-layout-background"
+                  style={{ padding: 24, minHeight: 380 }}
+                >
+                  <NavRoutes />
+                  <MyWallet />
+                </div>
+              </Content>
+              <Footer style={{ textAlign: "center" }}>
+                <img
+                  src={UBClogo}
+                  alt="UBC Logo"
+                  style={{ height: 30, width: 24, marginRight: 8 }}
+                />
+                EECE571G ©2022 Created by Haotian, Hanxin, Xuechun, Zhongze
+              </Footer>
+            </Layout>
+          </Router>
+        </div>
+      </ContractContext.Provider>
     </ProjectContext.Provider>
   );
 }
