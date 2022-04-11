@@ -20,8 +20,8 @@ export const ProjectCard = ({ projectAddress }) => {
   const [project, setProject] = useState({});
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [goal_amount, setGoal_amount] = useState(0);
-  const [img_url, setImg_url] = useState("");
+  const [goalAmount, setGoalAmount] = useState(0);
+  const [imgUrl, setImgUrl] = useState("");
   const [duration, setDuration] = useState(0);
   const [category, setCategory] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -30,6 +30,7 @@ export const ProjectCard = ({ projectAddress }) => {
     if (!projectAddress) {
       return;
     }
+
     async function getProject() {
       const provider = new ethers.providers.Web3Provider(
         window.ethereum,
@@ -47,19 +48,43 @@ export const ProjectCard = ({ projectAddress }) => {
       }
     }
     getProject();
-  }, [project]);
+  }, [projectAddress, project]);
 
   useEffect(() => {
     if (_.isEmpty(project)) {
       return;
     }
-    project.title().then((title) => setTitle(title));
-    project.description().then((description) => setDescription(description));
-    project.img_url().then((img_url) => setImg_url(img_url));
-    project.goal_amount().then((goal_amount) => setGoal_amount(goal_amount));
-    project.duration().then((duration) => setDuration(duration));
-    project.category().then((category) => setCategory(category));
-  }, [project, title, description, img_url, goal_amount, duration, category]);
+    project.title().then((_title) => {
+      if (_title !== title) {
+        setTitle(_title);
+      }
+    });
+    project.description().then((_description) => {
+      if (_description !== description) {
+        setDescription(_description);
+      }
+    });
+    project.img_url().then((_imgUrl) => {
+      if (_imgUrl !== imgUrl) {
+        setImgUrl(_imgUrl);
+      }
+    });
+    project.goal_amount().then((_goalAmount) => {
+      if (!_.isEqual(_goalAmount, goalAmount)) {
+        setGoalAmount(_goalAmount);
+      }
+    });
+    project.duration().then((_duration) => {
+      if (!_.isEqual(_duration, duration)) {
+        setDuration(_duration);
+      }
+    });
+    project.category().then((_category) => {
+      if (_category !== category) {
+        setCategory(_category);
+      }
+    });
+  }, [project, title, description, imgUrl, goalAmount, duration, category]);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -94,10 +119,7 @@ export const ProjectCard = ({ projectAddress }) => {
         <Meta
           title={title}
           description={
-            "Goal Amount is " +
-            goal_amount +
-            ", the duration day is " +
-            duration
+            "Goal Amount is " + goalAmount + ", the duration day is " + duration
           }
           avatar={
             category === "standard" ? (
