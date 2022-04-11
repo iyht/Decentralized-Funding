@@ -10,8 +10,9 @@ import {
   Row,
   Col,
   Space,
+  Tag,
 } from "antd";
-import { DollarOutlined } from "@ant-design/icons";
+import { DollarOutlined, StopTwoTone } from "@ant-design/icons";
 import { FaHandsHelping } from "react-icons/fa";
 import { IoTicketSharp } from "react-icons/io5";
 import { FcExpired } from "react-icons/fc";
@@ -29,6 +30,7 @@ export const ContributeProject = ({
   timestamp,
   duration,
   category,
+  projectActive,
 }) => {
   const [provider, setProvider] = useState(
     new ethers.providers.Web3Provider(window.ethereum, "any")
@@ -87,16 +89,22 @@ export const ContributeProject = ({
           </div>
         </Col>
         <Col span={12}>
-          {remainTime - blockTime < 0 ? (
-            <Title level={3}>
-              <FcExpired /> Project has expired
-            </Title>
+          {projectActive ? (
+            remainTime - blockTime < 0 ? (
+              <Title level={3}>
+                <FcExpired /> Project has expired
+              </Title>
+            ) : (
+              <Countdown
+                title="Countdown"
+                value={remainTime}
+                format="D day H hr"
+              />
+            )
           ) : (
-            <Countdown
-              title="Countdown"
-              value={remainTime}
-              format="D day H hr"
-            />
+            <Tag color="red">
+              <StopTwoTone twoToneColor="#cf1322" /> Expired
+            </Tag>
           )}
 
           <div style={{ marginTop: 48, width: "80%" }}>

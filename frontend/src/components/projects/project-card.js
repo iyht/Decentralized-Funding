@@ -1,7 +1,17 @@
 import { useEffect, useState, useContext } from "react";
 import { ethers } from "ethers";
 import _ from "lodash";
-import { Button, Card, Modal, Tooltip, Progress, message, Result } from "antd";
+import {
+  Button,
+  Card,
+  Modal,
+  Tooltip,
+  Progress,
+  message,
+  Result,
+  Tag,
+} from "antd";
+import { StopTwoTone } from "@ant-design/icons";
 import { FaHandsHelping } from "react-icons/fa";
 import { IoTicketSharp } from "react-icons/io5";
 import { MdDownloadDone, MdDeleteOutline } from "react-icons/md";
@@ -16,6 +26,7 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
   const { provider, signer } = useContext(ContractContext);
   const [signerAddress, setSignerAddress] = useState("");
   const [project, setProject] = useState({});
+  const [projectOwner, setProjectOwner] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
@@ -24,6 +35,7 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
   const [duration, setDuration] = useState(0);
   const [timestamp, setTimestamp] = useState(0);
   const [category, setCategory] = useState("standard");
+  const [projectActive, setProjectActive] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isResultVisible, setIsResultVisible] = useState(false);
   const [winner, setWinner] = useState("");
@@ -66,6 +78,11 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
       return;
     }
 
+    project.owner().then((_owner) => {
+      if (_owner !== projectOwner) {
+        setProjectOwner(_owner);
+      }
+    });
     project.title().then((_title) => {
       if (_title !== title) {
         setTitle(_title);
@@ -106,8 +123,14 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
         setCategory(_category);
       }
     });
+    project.active().then((_active) => {
+      if (_active !== projectActive) {
+        setProjectActive(_active);
+      }
+    });
   }, [
     project,
+    projectOwner,
     title,
     description,
     imgUrl,
@@ -116,6 +139,7 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
     timestamp,
     duration,
     category,
+    projectActive,
   ]);
 
   const showModal = () => {
@@ -192,12 +216,23 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
         }
       >
         <Meta
-          title={title}
+          title={
+            <div>
+              {title}{" "}
+              {projectActive ? (
+                ""
+              ) : (
+                <Tag color="red">
+                  <StopTwoTone twoToneColor="#cf1322" /> Expired
+                </Tag>
+              )}
+            </div>
+          }
           description={
             <div>
               <div>
-                by {signerAddress.substring(0, 6)}...
-                {signerAddress.substring(signerAddress.length - 4)}
+                by {projectOwner.substring(0, 6)}...
+                {projectOwner.substring(projectOwner.length - 4)}
               </div>
               <div>
                 open on {new Date(timestamp * 1000).toLocaleDateString("en-US")}
@@ -244,6 +279,7 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
           timestamp={timestamp}
           duration={duration}
           category={category}
+          projectActive={projectActive}
         />
       </Modal>
 

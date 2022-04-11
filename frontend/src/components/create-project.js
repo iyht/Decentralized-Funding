@@ -9,7 +9,6 @@ import {
   message,
   Upload,
 } from "antd";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { ethers } from "ethers";
 
 import { ContractContext } from "./utils/contract_context";
