@@ -86,20 +86,6 @@ class Avatar extends React.Component {
 const ProjectForm = () => {
   const [form] = Form.useForm();
   const [lottery_check, setChecked] = React.useState(false);
-
-  const loadProfile = () => {
-    form.setFieldsValue({
-      percentage: 0,
-      title: "<Replace with your project title>",
-      description: "<Describe the usage of the funding>",
-      duration: 1,
-    });
-  };
-
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
   const { manager, provider, signer } = useContext(ContractContext);
 
   const onFinish = async () => {
@@ -182,10 +168,10 @@ const ProjectForm = () => {
         label="Goal Amount"
         rules={[{ required: true }]}
       >
-        <InputNumber addonAfter="ETH" />
+        <InputNumber addonAfter="ETH" min={0.1} />
       </Form.Item>
       <Form.Item name="duration" label="Duration" rules={[{ required: true }]}>
-        <InputNumber addonAfter="days" />
+        <InputNumber addonAfter="days" min={1} />
       </Form.Item>
       <Form.Item name="lottery" label="Lottery Mode">
         <Switch checked={lottery_check} onChange={setChecked} />
@@ -195,7 +181,7 @@ const ProjectForm = () => {
         label="Percentage for lottery"
         style={lottery_check !== true ? { display: "none" } : {}}
       >
-        <InputNumber defaultValue={0} addonAfter="%" />
+        <InputNumber defaultValue={0} addonAfter="%" min={5} max={75} />
       </Form.Item>
 
       <Form.Item>
