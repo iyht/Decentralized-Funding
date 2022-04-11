@@ -59,7 +59,7 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
       });
     }
     getProject();
-  }, [projectAddress, signerAddress, project]);
+  }, [projectAddress, signerAddress, project, provider, signer]);
 
   useEffect(() => {
     if (_.isEmpty(project)) {

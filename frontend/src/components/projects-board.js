@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import _ from "lodash";
 import { Typography } from "antd";
 
 import { ProjectList } from "./projects/project-list";
@@ -7,7 +6,7 @@ import { ProjectContext } from "./utils/project_context";
 
 const { Title } = Typography;
 
-export const ProjectsBoard = ({}) => {
+export const ProjectsBoard = () => {
   const { projects, setProjects } = useContext(ProjectContext);
   const [projectsAddress, setprojectsAddress] = useState([]);
   useEffect(() => {

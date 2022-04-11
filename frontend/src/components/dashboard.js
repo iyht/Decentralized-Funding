@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import _ from "lodash";
 import { Typography } from "antd";
 
 import { ProjectList } from "./projects/project-list";
@@ -8,8 +7,8 @@ import { ProjectContext } from "./utils/project_context";
 
 const { Title } = Typography;
 
-export const Dashboard = ({}) => {
-  const { manager, provider, signer } = useContext(ContractContext);
+export const Dashboard = () => {
+  const { signer } = useContext(ContractContext);
   const { projects, setProjects } = useContext(ProjectContext);
   const [projectsAddress, setprojectsAddress] = useState([]);
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import _ from "lodash";
 import {
   Button,
   InputNumber,

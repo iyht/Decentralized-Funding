@@ -1,16 +1,13 @@
 import { useState, useContext } from "react";
 import { Button, Input, Typography } from "antd";
-import _ from "lodash";
-
 import { ProjectList } from "./projects/project-list";
 import { ProjectContext } from "./utils/project_context";
 
 const { Search } = Input;
 const { Title } = Typography;
 
-export const SearchProject = ({}) => {
+export const SearchProject = () => {
   const { projects, setProjects } = useContext(ProjectContext);
-
   const [options, setOptions] = useState([]);
 
   const projectContracts = projects.map((p) => {
