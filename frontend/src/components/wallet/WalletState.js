@@ -1,37 +1,28 @@
 
-import { useWeb3React } from '@web3-react/core';
-import { ethers } from 'ethers';
-import { ReactElement, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Provider } from '../utils/provider';
+import { useState, useEffect } from "react";
+import { useWeb3React } from "@web3-react/core";
+import { ethers } from "ethers";
+import { Descriptions, Badge } from "antd";
 
-
-function ChainId(){
+function ChainId() {
   const { chainId } = useWeb3React();
 
-  return (
-    <>
-      <span>
-        <strong>Chain ID: </strong>
-      </span>
-      <span>{chainId ?? ''}</span>
-    </>
-  );
+  return <span>{chainId ?? ""}</span>;
 }
 
-function BlockNumber(){
+function BlockNumber() {
   const { chainId, library } = useWeb3React();
 
   const [blockNumber, setBlockNumber] = useState();
 
-  useEffect(()=> {
+  useEffect(() => {
     if (!library) {
       return;
     }
 
     let stale = false;
 
-    async function getBlockNumber(library){
+    async function getBlockNumber(library) {
       try {
         const blockNumber = await library.getBlockNumber();
 
@@ -44,67 +35,55 @@ function BlockNumber(){
         }
 
         window.alert(
-          'Error!' + (error && error.message ? `\n\n${error.message}` : '')
+          "Error!" + (error && error.message ? `\n\n${error.message}` : "")
         );
       }
     }
 
     getBlockNumber(library);
 
-    library.on('block', setBlockNumber);
+    library.on("block", setBlockNumber);
 
     // cleanup function
     return () => {
       stale = true;
-      library.removeListener('block', setBlockNumber);
+      library.removeListener("block", setBlockNumber);
       setBlockNumber(undefined);
     };
   }, [library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
 
-  return (
-    <>
-      <span>
-        <strong>Block Number: </strong>
-      </span>
-      <span>{blockNumber === null ? 'Error' : blockNumber ?? ''}</span>
-    </>
-  );
+  return <span>{blockNumber === null ? "Error" : blockNumber ?? ""}</span>;
 }
 
-function Account(){
+function Account() {
   const { account } = useWeb3React();
 
   return (
-    <>
-      <span>
-        <strong>Account: </strong>
-      </span>
-      <span>
-        {typeof account === 'undefined'
-          ? ''
-          : account
-          ? `${account.substring(0, 6)}...${account.substring(
-              account.length - 4
-            )}`
-          : ''}
-      </span>
-    </>
+    <span>
+      {typeof account === "undefined"
+        ? ""
+        : account
+        ? `${account.substring(0, 6)}...${account.substring(
+            account.length - 4
+          )}`
+        : ""}
+    </span>
   );
 }
 
-function Balance(){
+function Balance() {
   const { account, library, chainId } = useWeb3React();
 
   const [balance, setBalance] = useState();
 
-  useEffect(()=> {
-    if (typeof account === 'undefined' || account === null || !library) {
+  useEffect(() => {
+    if (typeof account === "undefined" || account === null || !library) {
       return;
     }
 
     let stale = false;
 
-    async function getBalance( library, account){
+    async function getBalance(library, account) {
       const balance = await library.getBalance(account);
 
       try {
@@ -116,7 +95,7 @@ function Balance(){
           setBalance(undefined);
 
           window.alert(
-            'Error!' + (error && error.message ? `\n\n${error.message}` : '')
+            "Error!" + (error && error.message ? `\n\n${error.message}` : "")
           );
         }
       }
@@ -130,29 +109,24 @@ function Balance(){
       getBalance(library, account);
     };
 
-    library.on('block', getBalanceHandler);
+    library.on("block", getBalanceHandler);
 
     // cleanup function
     return () => {
       stale = true;
-      library.removeListener('block', getBalanceHandler);
+      library.removeListener("block", getBalanceHandler);
       setBalance(undefined);
     };
   }, [account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
 
   return (
-    <>
-      <span>
-        <strong>Balance: </strong>
-      </span>
-      <span>
-        {balance === null
-          ? 'Error'
-          : balance
-          ? `${Math.round(+ethers.utils.formatEther(balance) * 1e4) / 1e4}`
-          : ''}
-      </span>
-    </>
+    <span>
+      {balance === null
+        ? "Error"
+        : balance
+        ? `${Math.round(+ethers.utils.formatEther(balance) * 1e4) / 1e4} ETH`
+        : ""}
+    </span>
   );
 }
 
@@ -163,7 +137,7 @@ function NextNonce() {
   const [nextNonce, setNextNonce] = useState();
 
   useEffect(() => {
-    if (typeof account === 'undefined' || account === null || !library) {
+    if (typeof account === "undefined" || account === null || !library) {
       return;
     }
 
@@ -181,7 +155,7 @@ function NextNonce() {
           setNextNonce(undefined);
 
           window.alert(
-            'Error!' + (error && error.message ? `\n\n${error.message}` : '')
+            "Error!" + (error && error.message ? `\n\n${error.message}` : "")
           );
         }
       }
@@ -195,7 +169,7 @@ function NextNonce() {
       getNextNonce(library, account);
     };
 
-    library.on('block', getNextNonceHandler);
+    library.on("block", getNextNonceHandler);
 
     // cleanup function
     return () => {
@@ -204,39 +178,50 @@ function NextNonce() {
     };
   }, [account, library, chainId]); // ensures refresh if referential identity of library doesn't change across chainIds
 
-  return (
-    <>
-      <span>
-        <strong>Next Nonce: </strong>
-      </span>
-      <span>{nextNonce === null ? 'Error' : nextNonce ?? ''}</span>
-    </>
-  );
+  return <span>{nextNonce === null ? "Error" : nextNonce ?? ""}</span>;
 }
 
-function StatusIcon(){
+function StatusIcon() {
   const { active, error } = useWeb3React();
 
   return (
-      <>
-        <span>
-        <strong>Status: </strong>
-        </span>
-        <span>{active ? '🟢' : error ? '🔴' : '🟠'}</span>
-      </>
+    <span>
+      {active ? (
+        <Badge status="success" text="Connected" />
+      ) : error ? (
+        <Badge status="error" text="Error" />
+      ) : (
+        <Badge status="processing" text="Pending" />
+      )}
+    </span>
   );
 }
 
-
-export function WalletStatus(){
-    return (
-        <div>
-          <p><Account /></p>
-          <p><Balance /></p>
-          <p><ChainId /></p>
-          <p><BlockNumber /></p>
-          <p><NextNonce /></p>
-          <StatusIcon />
-        </div>
-       );
+export function WalletStatus() {
+  return (
+    <Descriptions
+      title="Wallet Info"
+      bordered
+      column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}
+    >
+      <Descriptions.Item label="Account">
+        <Account />
+      </Descriptions.Item>
+      <Descriptions.Item label="Balance">
+        <Balance />
+      </Descriptions.Item>
+      <Descriptions.Item label="Chain ID">
+        <ChainId />
+      </Descriptions.Item>
+      <Descriptions.Item label="Block Number">
+        <BlockNumber />
+      </Descriptions.Item>
+      <Descriptions.Item label="Next Nonce">
+        <NextNonce />
+      </Descriptions.Item>
+      <Descriptions.Item label="Status">
+        <StatusIcon />
+      </Descriptions.Item>
+    </Descriptions>
+  );
 }

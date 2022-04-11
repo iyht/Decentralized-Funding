@@ -1,12 +1,4 @@
-import { useWeb3React } from '@web3-react/core';
-import React, {
-  ChangeEvent,
-  MouseEvent,
-  ReactElement,
-  useContext,
-  useEffect,
-  useState
-} from 'react';
+import React, { useContext } from "react";
 import {
   Typography,
   Form,
@@ -20,95 +12,14 @@ import {
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { ethers } from "ethers";
 
-import { ContractContext } from './utils/contract_context';
+import { ContractContext } from "./utils/contract_context";
 
 const { Title } = Typography;
-
-function getBase64(img, callback) {
-  const reader = new FileReader();
-  reader.addEventListener("load", () => callback(reader.result));
-  reader.readAsDataURL(img);
-}
-
-function beforeUpload(file) {
-  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-  if (!isJpgOrPng) {
-    message.error("You can only upload JPG/PNG file!");
-  }
-  const isLt2M = file.size / 1024 / 1024 < 2;
-  if (!isLt2M) {
-    message.error("Image must smaller than 2MB!");
-  }
-  return isJpgOrPng && isLt2M;
-}
-
-class Avatar extends React.Component {
-  state = {
-    loading: false,
-  };
-
-  handleChange = (info) => {
-    if (info.file.status === "uploading") {
-      this.setState({ loading: true });
-      return;
-    }
-    if (info.file.status === "done") {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, (imageUrl) =>
-        this.setState({
-          imageUrl,
-          loading: false,
-        })
-      );
-    }
-  };
-
-  render() {
-    const { loading, imageUrl } = this.state;
-    const uploadButton = (
-      <div>
-        {loading ? <LoadingOutlined /> : <PlusOutlined />}
-        <div style={{ marginTop: 8 }}>Upload</div>
-      </div>
-    );
-    return (
-      <Upload
-        name="avatar"
-        listType="picture-card"
-        className="avatar-uploader"
-        showUploadList={false}
-        action="//jsonplaceholder.typicode.com/posts/"
-        beforeUpload={beforeUpload}
-        onChange={this.handleChange}
-      >
-        {imageUrl ? (
-          <img src={imageUrl} alt="avatar" style={{ width: "100%" }} />
-        ) : (
-          uploadButton
-        )}
-      </Upload>
-    );
-  }
-}
 
 const ProjectForm = () => {
   const [form] = Form.useForm();
   const [lottery_check, setChecked] = React.useState(false);
-
-  const loadProfile = () => {
-    form.setFieldsValue({
-      percentage: 0,
-      title: "<Replace with your project title>",
-      description: "<Describe the usage of the funding>",
-      duration: 1
-    });
-  }
-
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const { manager, provider, signer } = useContext(ContractContext);
+  const { manager, signer } = useContext(ContractContext);
 
   const onFinish = async () => {
     let userAddress = await signer.getAddress();
@@ -190,10 +101,10 @@ const ProjectForm = () => {
         label="Goal Amount"
         rules={[{ required: true }]}
       >
-        <InputNumber addonAfter="ETH" />
+        <InputNumber addonAfter="ETH" min={0.1} />
       </Form.Item>
       <Form.Item name="duration" label="Duration" rules={[{ required: true }]}>
-        <InputNumber addonAfter="days" />
+        <InputNumber addonAfter="days" min={1} />
       </Form.Item>
       <Form.Item name="lottery" label="Lottery Mode">
         <Switch checked={lottery_check} onChange={setChecked} />
@@ -203,7 +114,7 @@ const ProjectForm = () => {
         label="Percentage for lottery"
         style={lottery_check !== true ? { display: "none" } : {}}
       >
-        <InputNumber defaultValue={0} addonAfter="%" />
+        <InputNumber defaultValue={0} addonAfter="%" min={5} max={75} />
       </Form.Item>
 
       <Form.Item>
