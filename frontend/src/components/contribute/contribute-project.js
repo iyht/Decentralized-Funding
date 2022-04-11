@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import _ from "lodash";
 import {
   Button,
   InputNumber,
@@ -7,83 +8,33 @@ import {
   Progress,
   Statistic,
   Typography,
+  Row,
+  Col,
+  Space,
 } from "antd";
-import _ from "lodash";
+import { DollarOutlined } from "@ant-design/icons";
+import { FaHandsHelping } from "react-icons/fa";
+import { IoTicketSharp } from "react-icons/io5";
 
 const { Title, Text } = Typography;
 const { Countdown } = Statistic;
 
-export const ContributeProject = ({ project }) => {
+export const ContributeProject = ({
+  project,
+  title,
+  description,
+  imgUrl,
+  amount,
+  goalAmount,
+  timestamp,
+  duration,
+  category,
+}) => {
   const [provider, setProvider] = useState(
     new ethers.providers.Web3Provider(window.ethereum, "any")
   );
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState(0);
-  const [goalAmount, setGoalAmount] = useState(0);
-  const [imgUrl, setImgUrl] = useState("");
-  const [duration, setDuration] = useState(0);
-  const [timestamp, setTimestamp] = useState(0);
   const [remainTime, setRemainTime] = useState(0);
-  const [category, setCategory] = useState("");
   const [contributeAmount, setContributeAmount] = useState(0);
-
-  useEffect(() => {
-    if (_.isEmpty(project)) {
-      return;
-    }
-
-    project.title().then((_title) => {
-      if (_title !== title) {
-        setTitle(_title);
-      }
-    });
-    project.description().then((_description) => {
-      if (_description !== description) {
-        setDescription(_description);
-      }
-    });
-    project.img_url().then((_imgUrl) => {
-      if (_imgUrl !== imgUrl) {
-        setImgUrl(_imgUrl);
-      }
-    });
-    project.amount().then((_amount) => {
-      if (!_.isEqual(_amount, amount)) {
-        setAmount(_amount);
-      }
-    });
-    project.goal_amount().then((_goalAmount) => {
-      if (!_.isEqual(_goalAmount, goalAmount)) {
-        setGoalAmount(_goalAmount);
-      }
-    });
-    project.timestamp().then((_timestamp) => {
-      if (!_.isEqual(_timestamp, timestamp)) {
-        setTimestamp(_timestamp);
-      }
-    });
-    project.duration().then((_duration) => {
-      if (!_.isEqual(_duration, duration)) {
-        setDuration(_duration);
-      }
-    });
-    project.category().then((_category) => {
-      if (_category !== category) {
-        setCategory(_category);
-      }
-    });
-  }, [
-    project,
-    title,
-    description,
-    imgUrl,
-    amount,
-    goalAmount,
-    timestamp,
-    duration,
-    category,
-  ]);
 
   useEffect(() => {
     if (timestamp === 0 || duration === 0) {
@@ -115,30 +66,63 @@ export const ContributeProject = ({ project }) => {
 
   return (
     <div>
-      <Title>{title}</Title>
-      <Image width={"20%"} src={imgUrl} />
-      <Text>{description}</Text>
+      <Title>
+        {title}{" "}
+        {category === "standard" ? (
+          <FaHandsHelping color="#eb2f96" size="32" />
+        ) : (
+          <IoTicketSharp color="#eb2f96" size="32" />
+        )}
+      </Title>
+      <Row>
+        <Col span={12}>
+          <Image width={360} src={imgUrl} />
+          <div style={{ marginTop: 24 }}>
+            <Text>{description}</Text>
+          </div>
+        </Col>
+        <Col span={12}>
+          <Countdown title="Countdown" value={remainTime} format="D day H hr" />
 
-      <Countdown title="Countdown" value={remainTime} format="D day H hr" />
+          <Progress
+            strokeColor={{
+              "0%": "#108ee9",
+              "100%": "#87d068",
+            }}
+            percent={(
+              (100 * ethers.utils.formatEther(amount)) /
+              ethers.utils.formatEther(goalAmount)
+            ).toFixed(2)}
+            style={{ marginTop: 48, width: "80%" }}
+          />
 
-      <InputNumber
-        defaultValue={0}
-        prefix="$"
-        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-        parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
-        onChange={onAmountChange}
-      />
-      <Button type="primary" onClick={handleClickTransfer}>
-        Transfer
-      </Button>
-
-      <Progress
-        strokeColor={{
-          "0%": "#108ee9",
-          "100%": "#87d068",
-        }}
-        percent={(amount / goalAmount).toFixed(2)}
-      />
+          <Space style={{ marginTop: 48 }}>
+            <InputNumber
+              defaultValue={0.001}
+              addonAfter={"ETH"}
+              onChange={onAmountChange}
+              style={{ width: 200 }}
+            />
+            <Button
+              type="primary"
+              icon={<DollarOutlined />}
+              onClick={handleClickTransfer}
+            >
+              Transfer
+            </Button>
+          </Space>
+          <div style={{ marginTop: 8 }}>
+            {category === "lottery" ? (
+              <Text style={{ color: "grey" }}>
+                Note: you need to pay at least 0.05ETH to participate this
+                lottery
+              </Text>
+            ) : (
+              ""
+            )}
+          </div>
+        </Col>
+      </Row>
     </div>
   );
 };
