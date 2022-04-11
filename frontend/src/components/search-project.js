@@ -6,41 +6,28 @@ import _ from "lodash";
 import { ManagerInfo, ProjectInfo } from "./config/artifacts";
 import { ProjectList } from "./projects/project-list";
 import { ContractContext } from "./utils/contract_context";
+import { ProjectContext } from "./utils/project_context";
 
 const { Search } = Input;
 
-export const SearchProject = ({}) => {
+
+export const SearchProject = ({ }) => {
   const { manager, provider, signer, setManager, setProvider, setSigner } = useContext(ContractContext);
-  const [projectsAddress, setProjectsAddress] = useState([]);
-  const [projectContracts, setProjectContracts] = useState([]);
+  // const { projectsAddress, projectContracts, setProjectsAddress, setProjectContracts } = useContext(ProjectContext);
+  const { projects, setProjects} = useContext(ProjectContext);
+
   const [options, setOptions] = useState([]);
 
-  useEffect(() => {
-    async function getManagerContract() {
 
-      const _projectsAddress = await manager.getAllProjects();
-      if (!_.isEqual(projectsAddress, _projectsAddress)) {
-        setProjectsAddress(_projectsAddress);
-      }
-    }
+  const projectContracts = projects.map((p) => {
+    return p.contract;
+  });
 
-    getManagerContract();
-  }, [projectsAddress]);
+  const projectsAddress = projects.map((p) =>{
+    return p.contractAddr;
+  });
 
-  useEffect(() => {
-    if (!projectsAddress || projectsAddress.length === 0) {
-      return;
-    }
-
-    const _projectContracts = projectsAddress.map((address) => {
-      return new ethers.Contract(address, ProjectInfo.abi, signer);
-    });
-
-    if (_projectContracts.length !== projectContracts.length) {
-      setProjectContracts(_projectContracts);
-    }
-  }, [projectsAddress, projectContracts]);
-
+ 
   const searchResult = async (query) => {
     const asyncFilter = async (projectContracts, predicate) => {
       const results = await Promise.all(projectContracts.map(predicate));
@@ -52,6 +39,7 @@ export const SearchProject = ({}) => {
 
     const filtered = await asyncFilter(projectContracts, async (contract) => {
       const title = await contract.title();
+      console.log("title", title);
       return title.includes(query);
     });
 

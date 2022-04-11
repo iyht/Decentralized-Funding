@@ -110,25 +110,9 @@ const ProjectForm = () => {
 	}, []);
 
   const { manager, provider, signer } = useContext(ContractContext);
-  
-    console.log("out_pr", provider);
-    console.log("out_si", signer);
-    console.log("out_ma", manager);
-
-
-
-
 
   const onFinish = async () => {
-    // get provider info from the the wallet. The wallet should be connected to the ropsten already.
-    // const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-    // await provider.send("eth_requestAccounts", []);
-    // const signer = provider.getSigner();
     let userAddress = await signer.getAddress();
-
-    // get the contract instance
-    // const manager = new ethers.Contract(ManagerInfo.address, ManagerInfo.abi, signer);
-
 
     // prep args for creating the project
     const receiver_addr = userAddress;
@@ -139,7 +123,6 @@ const ProjectForm = () => {
       String(form.getFieldValue("goal_amount"))
     );
     const duration = form.getFieldValue("duration");
-    const due_date = String(form.getFieldValue("due_date"));
     const percentage = form.getFieldValue("percentage");
 
     manager.on(

@@ -4,20 +4,23 @@ import _ from "lodash";
 
 import { ProjectList } from "./projects/project-list";
 import { ContractContext } from "./utils/contract_context";
+import { ProjectContext } from "./utils/project_context";
 
 export const ProjectsBoard = ({}) => {
-  const [projects, setProjects] = useState([]);
-  const { manager, provider, signer, setManager, setProvider, setSigner } = useContext(ContractContext);
+  const { projects, setProjects} = useContext(ProjectContext);
+  const [projectContracts, setprojectContracts] = useState([]);
+  const [projectsAddress, setprojectsAddress] = useState([]);
+  useEffect( () => {
+    setprojectContracts(projects.map((p) => {
+      return p.contract;
+    }));
 
-  useEffect(() => {
-    async function getManager() {
-      const _projects = await manager.getAllProjects();
-      if (!_.isEqual(projects, _projects)) {
-        setProjects(_projects);
-      }
-    }
-    getManager();
-  }, [manager]);
+    setprojectsAddress(projects.map((p) =>{
+      return p.contractAddr;
+    }));
+    console.log("hu", projectContracts);
+    console.log("proj in page", projects);
+  }, [projects])
 
-  return <ProjectList projects={projects} />;
+  return <ProjectList projects={projectsAddress} />;
 };
