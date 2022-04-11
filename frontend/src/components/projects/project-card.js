@@ -1,29 +1,37 @@
-import { Card, Modal } from "antd";
-import { ethers } from "ethers";
-import { ProjectInfo } from "../config/artifacts";
 import { useEffect, useState } from "react";
-import Icon, { HomeOutlined } from "@ant-design/icons";
-import { DollarTwoTone, HeartTwoTone } from "@ant-design/icons";
-import { Space } from "antd";
+import { ethers } from "ethers";
 import _ from "lodash";
+import { Card, Modal, Typography, Tooltip, Progress } from "antd";
+import { FaHandsHelping } from "react-icons/fa";
+import { IoTicketSharp } from "react-icons/io5";
 
-import {
-  EditOutlined,
-  EllipsisOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+import { ProjectInfo } from "../config/artifacts";
 import { ContributeProject } from "../contribute/contribute-project";
 
 const { Meta } = Card;
+const { Text } = Typography;
+
+const EllipsisMiddle = ({ suffixCount, children }) => {
+  const start = children.slice(0, children.length - suffixCount).trim();
+  const suffix = children.slice(-suffixCount).trim();
+  return (
+    <Text style={{ maxWidth: "100%", color: "grey" }} ellipsis={{ suffix }}>
+      by {start}
+    </Text>
+  );
+};
 
 export const ProjectCard = ({ projectAddress }) => {
+  const [signerAddress, setSignerAddress] = useState("");
   const [project, setProject] = useState({});
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState(0);
   const [goalAmount, setGoalAmount] = useState(0);
   const [imgUrl, setImgUrl] = useState("");
   const [duration, setDuration] = useState(0);
-  const [category, setCategory] = useState("");
+  const [timestamp, setTimestamp] = useState(0);
+  const [category, setCategory] = useState("standard");
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
@@ -38,6 +46,10 @@ export const ProjectCard = ({ projectAddress }) => {
       );
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
+      const _signerAddress = await signer.getAddress();
+      if (_signerAddress !== signerAddress) {
+        setSignerAddress(_signerAddress);
+      }
       const _project = new ethers.Contract(
         projectAddress,
         ProjectInfo.abi,
@@ -48,12 +60,13 @@ export const ProjectCard = ({ projectAddress }) => {
       }
     }
     getProject();
-  }, [projectAddress, project]);
+  }, [projectAddress, signerAddress, project]);
 
   useEffect(() => {
     if (_.isEmpty(project)) {
       return;
     }
+
     project.title().then((_title) => {
       if (_title !== title) {
         setTitle(_title);
@@ -69,9 +82,19 @@ export const ProjectCard = ({ projectAddress }) => {
         setImgUrl(_imgUrl);
       }
     });
+    project.amount().then((_amount) => {
+      if (!_.isEqual(_amount, amount)) {
+        setAmount(_amount);
+      }
+    });
     project.goal_amount().then((_goalAmount) => {
       if (!_.isEqual(_goalAmount, goalAmount)) {
         setGoalAmount(_goalAmount);
+      }
+    });
+    project.timestamp().then((_timestamp) => {
+      if (!_.isEqual(_timestamp, timestamp)) {
+        setTimestamp(_timestamp);
       }
     });
     project.duration().then((_duration) => {
@@ -84,17 +107,27 @@ export const ProjectCard = ({ projectAddress }) => {
         setCategory(_category);
       }
     });
-  }, [project, title, description, imgUrl, goalAmount, duration, category]);
+  }, [
+    project,
+    title,
+    description,
+    imgUrl,
+    amount,
+    goalAmount,
+    timestamp,
+    duration,
+    category,
+  ]);
 
   const showModal = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
+  const handleModalOk = () => {
     setIsModalVisible(false);
   };
 
-  const handleCancel = () => {
+  const handleModalCancel = () => {
     setIsModalVisible(false);
   };
 
@@ -102,49 +135,60 @@ export const ProjectCard = ({ projectAddress }) => {
     <div>
       <Card
         style={{ width: 300 }}
-        cover={
-          <img
-            alt={""}
-            src={
-              "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
-            }
-          />
-        }
-        actions={[
-          <SettingOutlined key="setting" />,
-          <EditOutlined key="edit" />,
-          <EllipsisOutlined key="ellipsis" />,
-        ]}
+        cover={<img alt={"cover image"} src={imgUrl} />}
       >
         <Meta
           title={title}
           description={
-            "Goal Amount is " + goalAmount + ", the duration day is " + duration
+            <div>
+              <EllipsisMiddle suffixCount={4}>{signerAddress}</EllipsisMiddle>
+              <div>
+                Project opens on{" "}
+                {new Date(timestamp * 1000).toLocaleDateString("en-US")}
+              </div>
+              <div>target of {ethers.utils.formatEther(goalAmount)} ETH</div>
+              <Progress
+                strokeColor={{
+                  "0%": "#108ee9",
+                  "100%": "#87d068",
+                }}
+                percent={(
+                  (100 * ethers.utils.formatEther(amount)) /
+                  ethers.utils.formatEther(goalAmount)
+                ).toFixed(2)}
+                style={{ width: "80%" }}
+              />
+            </div>
           }
           avatar={
-            category === "standard" ? (
-              <HeartTwoTone
-                twoToneColor="#eb2f96"
-                style={{ fontSize: "32px" }}
-                onClick={showModal}
-              />
-            ) : (
-              <DollarTwoTone
-                twoToneColor="#eb2f96"
-                style={{ fontSize: "32px" }}
-                onClick={showModal}
-              />
-            )
+            <Tooltip placement="bottom" title="Click to contribute">
+              {category === "standard" ? (
+                <FaHandsHelping color="#eb2f96" size="32" onClick={showModal} />
+              ) : (
+                <IoTicketSharp color="#eb2f96" size="32" onClick={showModal} />
+              )}
+            </Tooltip>
           }
         />
       </Card>
       <Modal
         title="Contribute"
+        width={"80%"}
         visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
       >
-        <ContributeProject project={project} />
+        <ContributeProject
+          project={project}
+          title={title}
+          description={description}
+          imgUrl={imgUrl}
+          amount={amount}
+          goalAmount={goalAmount}
+          timestamp={timestamp}
+          duration={duration}
+          category={category}
+        />
       </Modal>
     </div>
   );
