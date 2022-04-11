@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import _ from "lodash";
 import {
   Button,
   InputNumber,
@@ -12,7 +13,8 @@ import {
   Space,
 } from "antd";
 import { DollarOutlined } from "@ant-design/icons";
-import _ from "lodash";
+import { FaHandsHelping } from "react-icons/fa";
+import { IoTicketSharp } from "react-icons/io5";
 
 const { Title, Text } = Typography;
 const { Countdown } = Statistic;
@@ -64,7 +66,14 @@ export const ContributeProject = ({
 
   return (
     <div>
-      <Title>{title}</Title>
+      <Title>
+        {title}{" "}
+        {category === "standard" ? (
+          <FaHandsHelping color="#eb2f96" size="32" />
+        ) : (
+          <IoTicketSharp color="#eb2f96" size="32" />
+        )}
+      </Title>
       <Row>
         <Col span={12}>
           <Image width={360} src={imgUrl} />
@@ -102,6 +111,16 @@ export const ContributeProject = ({
               Transfer
             </Button>
           </Space>
+          <div style={{ marginTop: 8 }}>
+            {category === "lottery" ? (
+              <Text style={{ color: "grey" }}>
+                Note: you need to pay at least 0.05ETH to participate this
+                lottery
+              </Text>
+            ) : (
+              ""
+            )}
+          </div>
         </Col>
       </Row>
     </div>
