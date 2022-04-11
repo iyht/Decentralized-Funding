@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import _ from "lodash";
-import { Card, Modal, Typography, Tooltip, Progress } from "antd";
+import {
+  Button,
+  Card,
+  Modal,
+  Typography,
+  Tooltip,
+  Progress,
+  message,
+  Result,
+} from "antd";
 import { FaHandsHelping } from "react-icons/fa";
 import { IoTicketSharp } from "react-icons/io5";
+import { MdDownloadDone, MdDeleteOutline } from "react-icons/md";
 
 import { ProjectInfo } from "../config/artifacts";
 import { ContributeProject } from "../contribute/contribute-project";
@@ -21,7 +31,7 @@ const EllipsisMiddle = ({ suffixCount, children }) => {
   );
 };
 
-export const ProjectCard = ({ projectAddress }) => {
+export const ProjectCard = ({ projectAddress, isDashboard }) => {
   const [signerAddress, setSignerAddress] = useState("");
   const [project, setProject] = useState({});
   const [title, setTitle] = useState("");
@@ -33,6 +43,9 @@ export const ProjectCard = ({ projectAddress }) => {
   const [timestamp, setTimestamp] = useState(0);
   const [category, setCategory] = useState("standard");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isResultVisible, setIsResultVisible] = useState(false);
+  const [winner, setWinner] = useState("");
+  const [prize, setPrize] = useState(0);
 
   useEffect(() => {
     if (!projectAddress) {
@@ -131,11 +144,54 @@ export const ProjectCard = ({ projectAddress }) => {
     setIsModalVisible(false);
   };
 
+  const showResult = () => {
+    setIsResultVisible(true);
+  };
+
+  const handleResultOk = () => {
+    setIsResultVisible(false);
+  };
+
+  const handleResultCancel = () => {
+    setIsResultVisible(false);
+  };
+
+  const handleDeleteProject = async () => {
+    await project.cancelProject();
+    message.success("Project deleted!");
+  };
+
+  const handleCompleteProject = async () => {
+    if (category === "lottery") {
+      project.on("projectCompleted", (owner, receiver, amount) => {
+        setWinner(receiver);
+        setPrize(amount);
+      });
+      await project.completeProject();
+      showResult();
+    } else {
+      await project.completeProject();
+      message.success("Project completed!");
+    }
+  };
+
+  const handleClickBackHome = () => {
+    window.location.href = "/";
+  };
+
   return (
     <div>
       <Card
         style={{ width: 300 }}
         cover={<img alt={"cover image"} src={imgUrl} />}
+        actions={
+          isDashboard
+            ? [
+                <MdDeleteOutline onClick={handleDeleteProject} />,
+                <MdDownloadDone onClick={handleCompleteProject} />,
+              ]
+            : []
+        }
       >
         <Meta
           title={title}
@@ -188,6 +244,29 @@ export const ProjectCard = ({ projectAddress }) => {
           timestamp={timestamp}
           duration={duration}
           category={category}
+        />
+      </Modal>
+
+      <Modal
+        title="Lottery Result"
+        width={"80%"}
+        visible={isResultVisible}
+        onOk={handleResultOk}
+        onCancel={handleResultCancel}
+      >
+        <Result
+          status="success"
+          title="Prize Drew!"
+          subTitle={`The winner address is ${winner}. ${prize}ETH has been transfered to the winner.`}
+          extra={[
+            <Button
+              type="primary"
+              key="back-home"
+              onClick={handleClickBackHome}
+            >
+              Back to home page
+            </Button>,
+          ]}
         />
       </Modal>
     </div>
