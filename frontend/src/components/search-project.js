@@ -12,8 +12,6 @@ const { Search } = Input;
 
 
 export const SearchProject = ({ }) => {
-  const { manager, provider, signer, setManager, setProvider, setSigner } = useContext(ContractContext);
-  // const { projectsAddress, projectContracts, setProjectsAddress, setProjectContracts } = useContext(ProjectContext);
   const { projects, setProjects} = useContext(ProjectContext);
 
   const [options, setOptions] = useState([]);
@@ -39,7 +37,6 @@ export const SearchProject = ({ }) => {
 
     const filtered = await asyncFilter(projectContracts, async (contract) => {
       const title = await contract.title();
-      console.log("title", title);
       return title.includes(query);
     });
 

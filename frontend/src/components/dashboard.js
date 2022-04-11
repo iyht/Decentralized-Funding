@@ -4,20 +4,34 @@ import _ from "lodash";
 
 import { ProjectList } from "./projects/project-list";
 import { ContractContext } from "./utils/contract_context";
+import {ProjectContext} from "./utils/project_context";
 
 export const Dashboard = ({}) => {
-  const [projects, setProjects] = useState([]);
-  const { manager, provider, signer, setManager, setProvider, setSigner } = useContext(ContractContext);
+  const { manager, provider, signer } = useContext(ContractContext);
+  const { projects, setProjects} = useContext(ProjectContext);
+  const [projectsAddress, setprojectsAddress] = useState([]);
 
-  useEffect(() => {
-    async function getManager() {
-      const _projects = await manager.getAllProjects();
-      if (!_.isEqual(projects, _projects)) {
-        setProjects(_projects);
+
+    useEffect(  () => {
+      if(!signer){
+          return;
       }
-    }
-    getManager();
-  }, [manager]);
+      const tmp = []
+      signer.getAddress().then(
+          (userAddress) => {
+              for (let i = 0; i < projects.length; i++) {
+                  if(projects[i].owner == userAddress){
+                      tmp.push(projects[i].contractAddr);
+                  }
+              }
+              setprojectsAddress(tmp);
+          }
+      );
 
-  return <ProjectList projects={projects} />;
+
+
+  }, [projects, signer])
+
+
+  return <ProjectList projects={projectsAddress} />;
 };

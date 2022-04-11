@@ -59,9 +59,6 @@ function App() {
     setManager(_manager);
     setProvider(_provider);
     setSigner(_signer);
-    console.log("pr", provider);
-    console.log("si", signer);
-    console.log("ma", manager);
   };
 
   const initProjectsAddress = async () =>{
@@ -84,14 +81,16 @@ function App() {
     const _projects = []
     const createProject =  (address) =>{
       const contract = new ethers.Contract(address, ProjectInfo.abi, signer);
-      return contract.title().then((result) => {
-        _projects.push(new Project(address, contract, result));
-        setProjects([..._projects]);
+      return contract.title().then((t) => {
+        contract.owner().then((o) => {
+          _projects.push(new Project(address, contract, t, o));
+          setProjects([..._projects]);
+        })
+
       });
     }
 
     projectsAddress.map(createProject);
-    console.log(projects, _projects);
 
   }
 
