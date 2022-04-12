@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/Decentralized-Funding/static/css/main.cabb8267.css",
-    "main.js": "/Decentralized-Funding/static/js/main.950d843c.js",
+    "main.js": "/Decentralized-Funding/static/js/main.305b2e63.js",
     "static/js/787.cda612ba.chunk.js": "/Decentralized-Funding/static/js/787.cda612ba.chunk.js",
     "static/media/ubc-logo.png": "/Decentralized-Funding/static/media/ubc-logo.702e190bcb144f00ad5f.png",
     "index.html": "/Decentralized-Funding/index.html",
     "main.cabb8267.css.map": "/Decentralized-Funding/static/css/main.cabb8267.css.map",
-    "main.950d843c.js.map": "/Decentralized-Funding/static/js/main.950d843c.js.map",
+    "main.305b2e63.js.map": "/Decentralized-Funding/static/js/main.305b2e63.js.map",
     "787.cda612ba.chunk.js.map": "/Decentralized-Funding/static/js/787.cda612ba.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.cabb8267.css",
-    "static/js/main.950d843c.js"
+    "static/js/main.305b2e63.js"
   ]
 }
