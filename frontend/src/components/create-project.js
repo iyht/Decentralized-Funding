@@ -12,6 +12,7 @@ import {
 import { ethers } from "ethers";
 
 import { ContractContext } from "./utils/contract_context";
+import { pathname } from "../App";
 
 const { Title } = Typography;
 
@@ -54,7 +55,7 @@ const ProjectForm = () => {
         percentage
       );
       message.success("Project created!");
-      window.location.href = "/projects";
+      window.location.href = pathname.projects;
     } else {
       await manager.createProject(
         receiver_addr,
@@ -65,7 +66,7 @@ const ProjectForm = () => {
         duration
       );
       message.success("Project created!");
-      window.location.href = "/projects";
+      window.location.href = pathname.projects;
     }
   };
 

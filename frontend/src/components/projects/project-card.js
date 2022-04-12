@@ -19,6 +19,7 @@ import { MdDownloadDone, MdDeleteOutline } from "react-icons/md";
 import { ProjectInfo, ProjectLotteryInfo } from "../config/artifacts";
 import { ContributeProject } from "../contribute/contribute-project";
 import { ContractContext } from "../utils/contract_context";
+import { pathname } from "../../App";
 
 const { Meta } = Card;
 
@@ -188,7 +189,7 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
   };
 
   const handleClickBackHome = () => {
-    window.location.href = "/";
+    window.location.href = pathname.search;
   };
 
   return (

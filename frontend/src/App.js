@@ -1,7 +1,7 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter, BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import _ from "lodash";
 import { ethers } from "ethers";
 
@@ -13,13 +13,13 @@ import { ContractContext } from "./components/utils/contract_context";
 import { Project, ProjectContext } from "./components/utils/project_context";
 
 const { Header, Content, Footer } = Layout;
-
-const pathname = {
-  search: "/",
-  projects: "/projects",
-  searchProjects: "/projects/search/:keyword/",
-  createProject: "/create-project",
-  dashboard: "/dashboard",
+const SecondDomain = "/Decentralized-Funding"
+export const pathname = {
+  search: SecondDomain+"/",
+  projects: SecondDomain+"/projects",
+  searchProjects: SecondDomain+"/projects/search/:keyword/",
+  createProject: SecondDomain+"/create-project",
+  dashboard: SecondDomain+"/dashboard",
 };
 
 const menuItemName = {
@@ -126,7 +126,7 @@ function App() {
         }}
       >
         <div className="App">
-          <Router>
+          <BrowserRouter basename="Decentralized-Funding">
             <Layout style={{ minHeight: "100vh" }}>
               <Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
                 <Menu
@@ -163,7 +163,7 @@ function App() {
                 EECE571G ©2022 Created by Haotian, Hanxin, Xuechun, Zhongze
               </Footer>
             </Layout>
-          </Router>
+          </BrowserRouter>
         </div>
       </ContractContext.Provider>
     </ProjectContext.Provider>

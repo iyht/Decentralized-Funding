@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { Button, Input, Typography } from "antd";
 import { ProjectList } from "./projects/project-list";
 import { ProjectContext } from "./utils/project_context";
+import { pathname } from "../App";
 
 const { Search } = Input;
 const { Title } = Typography;
@@ -42,7 +43,7 @@ export const SearchProject = () => {
   };
 
   const handleClickCreateProject = () => {
-    window.location.href = "/create-project";
+    window.location.href = pathname.createProject;
   };
 
   return (
