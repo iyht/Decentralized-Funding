@@ -3,6 +3,7 @@ import { Button, Input, Typography } from "antd";
 import { ProjectList } from "./projects/project-list";
 import { ProjectContext } from "./utils/project_context";
 import { pathname } from "../App";
+import { useNavigate } from "react-router-dom";
 
 const { Search } = Input;
 const { Title } = Typography;
@@ -10,6 +11,7 @@ const { Title } = Typography;
 export const SearchProject = () => {
   const { projects, setProjects } = useContext(ProjectContext);
   const [options, setOptions] = useState([]);
+  const navigate = useNavigate();
 
   const projectContracts = projects.map((p) => {
     return p.contract;
@@ -43,7 +45,8 @@ export const SearchProject = () => {
   };
 
   const handleClickCreateProject = () => {
-    window.location.href = pathname.createProject;
+    // window.location.href = pathname.createProject;
+    navigate("/create-project")
   };
 
   return (

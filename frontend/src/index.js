@@ -5,11 +5,15 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Web3ReactProvider } from "@web3-react/core";
 import { getProvider } from "./components/utils/provider";
+import { HashRouter } from "react-router-dom";
 
 ReactDOM.render(
+
+          <HashRouter >
   <Web3ReactProvider getLibrary={getProvider}>
     <App />
-  </Web3ReactProvider>,
+  </Web3ReactProvider>
+          </HashRouter>,
   document.getElementById("root")
 );
 

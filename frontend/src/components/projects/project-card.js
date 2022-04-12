@@ -20,6 +20,7 @@ import { ProjectInfo, ProjectLotteryInfo } from "../config/artifacts";
 import { ContributeProject } from "../contribute/contribute-project";
 import { ContractContext } from "../utils/contract_context";
 import { pathname } from "../../App";
+import { useNavigate } from "react-router-dom";
 
 const { Meta } = Card;
 
@@ -41,6 +42,7 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
   const [isResultVisible, setIsResultVisible] = useState(false);
   const [winner, setWinner] = useState("");
   const [prize, setPrize] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!projectAddress) {
@@ -189,7 +191,8 @@ export const ProjectCard = ({ projectAddress, isDashboard }) => {
   };
 
   const handleClickBackHome = () => {
-    window.location.href = pathname.search;
+    // window.location.href = pathname.search;
+    navigate("/");
   };
 
   return (

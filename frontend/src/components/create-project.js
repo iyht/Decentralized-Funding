@@ -13,6 +13,7 @@ import { ethers } from "ethers";
 
 import { ContractContext } from "./utils/contract_context";
 import { pathname } from "../App";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -20,6 +21,7 @@ const ProjectForm = () => {
   const [form] = Form.useForm();
   const [lottery_check, setChecked] = React.useState(false);
   const { manager, signer } = useContext(ContractContext);
+  const navigate = useNavigate();
 
   const onFinish = async () => {
     let userAddress = await signer.getAddress();
@@ -55,7 +57,7 @@ const ProjectForm = () => {
         percentage
       );
       message.success("Project created!");
-      window.location.href = pathname.projects;
+      navigate("/projects")
     } else {
       await manager.createProject(
         receiver_addr,
@@ -66,7 +68,7 @@ const ProjectForm = () => {
         duration
       );
       message.success("Project created!");
-      window.location.href = pathname.projects;
+      navigate("/projects")
     }
   };
 

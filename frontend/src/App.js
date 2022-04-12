@@ -1,7 +1,7 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import { Layout, Menu } from "antd";
-import { BrowserRouter, BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as HashRouter, Route, Routes } from "react-router-dom";
 import _ from "lodash";
 import { ethers } from "ethers";
 
@@ -11,9 +11,11 @@ import MyWallet from "./components/wallet/MyWallet";
 import { ManagerInfo, ProjectInfo } from "./components/config/artifacts";
 import { ContractContext } from "./components/utils/contract_context";
 import { Project, ProjectContext } from "./components/utils/project_context";
+import { SearchProject } from "./components/search-project";
+import { useNavigate } from "react-router-dom";
 
 const { Header, Content, Footer } = Layout;
-const SecondDomain = "/Decentralized-Funding"
+const SecondDomain = process.env.PUBLIC_URL;
 export const pathname = {
   search: SecondDomain+"/",
   projects: SecondDomain+"/projects",
@@ -37,7 +39,7 @@ function App() {
   const [currentMenuItem, setCurrentMenuItem] = useState(
     window.location.pathname
   );
-
+  const navigate = useNavigate();
   useEffect(() => {
     const initManager = async () => {
       // get provider info from the the wallet. The wallet should be connected to the ropsten already.
@@ -126,7 +128,6 @@ function App() {
         }}
       >
         <div className="App">
-          <BrowserRouter basename="Decentralized-Funding">
             <Layout style={{ minHeight: "100vh" }}>
               <Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
                 <Menu
@@ -135,11 +136,14 @@ function App() {
                   onClick={handleClickMenuItem}
                   selectedKeys={[currentMenuItem]}
                 >
-                  {Object.entries(menuItemName).map(([page, name]) => (
+                  {/* {Object.entries(menuItemName).map(([page, name]) => (
                     <Menu.Item key={pathname[page]}>
                       <a href={pathname[page]}>{name}</a>
                     </Menu.Item>
-                  ))}
+                  ))} */}
+                  <Menu.Item key="Search" onClick={() => {navigate("/")}}> Search </Menu.Item>
+                  <Menu.Item key="Projects" onClick={() => {navigate("/projects")}}> Projects </Menu.Item>
+                  <Menu.Item key="My Dashboard" onClick={() => {navigate("/dashboard")}}> My Dashboard </Menu.Item>
                 </Menu>
               </Header>
               <Content
@@ -163,7 +167,6 @@ function App() {
                 EECE571G ©2022 Created by Haotian, Hanxin, Xuechun, Zhongze
               </Footer>
             </Layout>
-          </BrowserRouter>
         </div>
       </ContractContext.Provider>
     </ProjectContext.Provider>
